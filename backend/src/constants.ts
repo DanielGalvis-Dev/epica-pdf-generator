@@ -1,4 +1,17 @@
-import { DatosFijos } from "./types";
+export interface SegmentoHoras {
+  nombre: string;
+  pct: number;
+  horas: string;
+  color: string;
+  mostrarPct: boolean;
+}
+
+export interface DatosFijos {
+  horas: {
+    total: number;
+    segmentos: SegmentoHoras[];
+  };
+}
 
 // Precio de OpenAI por millon de tokens (USD). Verificado en openai.com/api/pricing.
 // Si OpenAI cambia el precio o migras de modelo, se actualiza aqui, en un solo lugar.

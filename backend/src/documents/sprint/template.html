@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Resumen de Sprint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.44.0/dist/tabler-icons.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Stack+Sans+Headline:wght@200..700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-page: #f0f4f6;
+        --ink-900: #16213d;
+        --ink-700: #334155;
+        --ink-500: #64748b;
+        --ink-400: #8a93a8;
+        --border: #e3e7ef;
+        --border-soft: #eef2f7;
+        --header: #020609;
+        --teal: #00b5a3;
+        --card: #ffffff;
+        --row: #f8fafc;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        width: 1240px;
+        min-height: 900px;
+        padding: 24px;
+        background: var(--bg-page);
+        color: var(--ink-900);
+        font-family: "Stack Sans Headline", -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      .page {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .header {
+        background: var(--header);
+        border-radius: 14px;
+        padding: 22px 28px;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+
+      .eyebrow {
+        color: #aab4cc;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+      }
+
+      .title {
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .title span {
+        color: var(--teal);
+        margin-left: 6px;
+      }
+
+      .header-side {
+        text-align: right;
+      }
+
+      .date-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        margin-bottom: 8px;
+        padding: 10px 18px;
+      }
+
+      .date-badge i {
+        color: var(--teal);
+        font-size: 14px;
+      }
+
+      .header-meta {
+        color: #aab4cc;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        margin-bottom: 10px;
+      }
+
+      .type-legend {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      .type-chip {
+        align-items: center;
+        border-radius: 5px;
+        display: inline-flex;
+        font-size: 9.5px;
+        font-weight: 700;
+        gap: 4px;
+        padding: 4px 9px;
+      }
+
+      .member-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .member-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .member-accent {
+        height: 3px;
+        background: var(--teal);
+      }
+
+      .member-head {
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 12px;
+        padding: 14px 20px;
+      }
+
+      .avatar {
+        align-items: center;
+        background: rgba(0, 181, 163, 0.12);
+        border-radius: 9px;
+        color: var(--teal);
+        display: flex;
+        flex-shrink: 0;
+        font-size: 13px;
+        font-weight: 700;
+        height: 36px;
+        justify-content: center;
+        width: 36px;
+      }
+
+      .member-name {
+        color: var(--ink-900);
+        flex: 1;
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .counter {
+        background: #f1f5f9;
+        border-radius: 7px;
+        color: var(--ink-400);
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+      }
+
+      .project-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px 20px;
+      }
+
+      .project-title {
+        align-items: center;
+        color: var(--ink-400);
+        display: flex;
+        font-size: 10px;
+        font-weight: 700;
+        gap: 6px;
+        letter-spacing: 0.1em;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+
+      .project-title i {
+        color: var(--teal);
+        font-size: 12px;
+      }
+
+      .issue-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .issue-row {
+        align-items: center;
+        background: var(--row);
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        display: flex;
+        gap: 8px;
+        min-height: 39px;
+        padding: 9px 12px;
+      }
+
+      .issue-title {
+        color: var(--ink-900);
+        flex: 1;
+        font-size: 12.5px;
+        font-weight: 500;
+        line-height: 1.3;
+      }
+
+      .issue-type {
+        align-items: center;
+        border-radius: 5px;
+        display: inline-flex;
+        flex-shrink: 0;
+        font-size: 9.5px;
+        font-weight: 700;
+        gap: 4px;
+        letter-spacing: 0.03em;
+        padding: 3px 8px;
+        white-space: nowrap;
+      }
+
+      .issue-priority {
+        align-items: center;
+        display: inline-flex;
+        flex-shrink: 0;
+        font-size: 10px;
+        font-weight: 600;
+        gap: 3px;
+        min-width: 72px;
+        white-space: nowrap;
+      }
+
+      .issue-status {
+        border-radius: 5px;
+        flex-shrink: 0;
+        font-size: 9.5px;
+        font-weight: 600;
+        min-width: 90px;
+        padding: 3px 10px;
+        text-align: center;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="header">
+        <div>
+          <div class="eyebrow">RESUMEN DE SPRINT &middot; EQUIPO DE PRODUCTO</div>
+          <div class="title">SPRINT <span>{{sprintName}}</span></div>
+        </div>
+        <div class="header-side">
+          <div class="date-badge">
+            {{dateStart}} <i class="ti ti-arrow-right"></i> {{dateEnd}}
+          </div>
+          <div class="header-meta">
+            SEMANA {{weekNumber}} &middot; {{teamSize}} MIEMBROS
+          </div>
+          <div class="type-legend">
+            {{#each typeLegend}}
+            <span
+              class="type-chip"
+              style="background: {{this.bg}}; color: {{this.color}}"
+            >
+              <i class="ti {{this.icon}}"></i>{{this.label}}
+            </span>
+            {{/each}}
+          </div>
+        </div>
+      </header>
+
+      <section class="member-list">
+        {{#each members}}
+        <article class="member-card">
+          <div class="member-accent"></div>
+          <div class="member-head">
+            <div class="avatar">{{this.initials}}</div>
+            <div class="member-name">{{this.name}}</div>
+            <div class="counter">{{this.totalIssues}} issues</div>
+            <div class="counter">{{this.projectCount}} proyectos</div>
+          </div>
+
+          <div class="project-list">
+            {{#each this.projects}}
+            <section>
+              <div class="project-title">
+                <i class="ti ti-folder"></i>{{this.name}}
+              </div>
+              <div class="issue-list">
+                {{#each this.issues}}
+                <div class="issue-row">
+                  <span class="issue-title">{{this.title}}</span>
+                  <span
+                    class="issue-type"
+                    style="background: {{this.typeBg}}; color: {{this.typeColor}}"
+                  >
+                    <i class="ti {{this.typeIcon}}"></i>{{this.type}}
+                  </span>
+                  <span
+                    class="issue-priority"
+                    style="color: {{this.priorityColor}}"
+                  >
+                    <i class="ti {{this.priorityIcon}}"></i>{{this.priority}}
+                  </span>
+                  <span
+                    class="issue-status"
+                    style="background: {{this.statusBg}}; color: {{this.statusColor}}"
+                  >
+                    {{this.status}}
+                  </span>
+                </div>
+                {{/each}}
+              </div>
+            </section>
+            {{/each}}
+          </div>
+        </article>
+        {{/each}}
+      </section>
+    </main>
+  </body>
+</html>

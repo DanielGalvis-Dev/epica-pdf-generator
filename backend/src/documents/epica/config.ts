@@ -1,10 +1,40 @@
-import OpenAI from "openai";
-import { DatosExtraidos, RespuestaExtraccion, UsoTokens } from "./types";
-import { PRECIO_GPT4OMINI } from "./constants";
+import path from "path";
+import { z } from "zod";
+import { HORAS_FIJAS, asignarPaleta } from "../../constants";
+import { DocumentConfig } from "../types";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const EpicaItemSchema = z.object({
+  nombreCorto: z.string(),
+  subtitulo: z.string(),
+  responsable: z.string(),
+  objetivo: z.string(),
+  alcance: z.string(),
+  kpis: z.array(z.string()).min(1),
+  resultadoEsperado: z.string(),
+  riesgo: z.string(),
+});
 
-const SYSTEM_PROMPT = `Eres un extractor de datos. Recibes el contenido de un documento Markdown que describe las epicas mensuales de un equipo de producto (Polaria). Tu trabajo es leerlo y devolver UNICAMENTE un objeto JSON valido, sin texto antes ni despues, sin bloques de codigo, sin explicaciones.
+export const EpicaSchema = z.object({
+  periodo: z.string(),
+  fechaInicio: z.string(),
+  fechaFin: z.string(),
+  duracion: z.string(),
+  epicas: z.array(EpicaItemSchema).min(1),
+  equipo: z.object({
+    quien: z.string(),
+    cuando: z.string(),
+    donde: z.string(),
+    como: z.string(),
+  }),
+  riesgoTransversal: z.object({
+    texto: z.string(),
+    mitigacion: z.string(),
+  }),
+});
+
+export type EpicaData = z.infer<typeof EpicaSchema>;
+
+export const EPICA_SYSTEM_PROMPT = `Eres un extractor de datos. Recibes el contenido de un documento Markdown que describe las epicas mensuales de un equipo de producto (Polaria). Tu trabajo es leerlo y devolver UNICAMENTE un objeto JSON valido, sin texto antes ni despues, sin bloques de codigo, sin explicaciones.
 
 El JSON debe tener esta estructura exacta:
 
@@ -55,53 +85,21 @@ Reglas generales y de control de longitud:
 - Si el documento no menciona explicitamente el riesgo transversal o el bloque de equipo (quien/cuando/donde/como), infiere los valores a partir del conjunto de epicas de la forma mas razonable y concreta posible, respetando los mismos rangos de caracteres.
 - Responde solo con el JSON.`;
 
-export async function extraerDatos(
-  markdown: string,
-): Promise<RespuestaExtraccion> {
-  const completion = await openai.chat.completions.create({
-    model: PRECIO_GPT4OMINI.modelo,
-    temperature: 0.2,
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: markdown },
-    ],
-  });
-
-  const raw = completion.choices[0]?.message?.content;
-  if (!raw) {
-    throw new Error("OpenAI no devolvio contenido.");
-  }
-
-  let parsed: DatosExtraidos;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (e) {
-    throw new Error(
-      "La respuesta de OpenAI no es JSON valido: " + raw.slice(0, 200),
-    );
-  }
-
-  if (!Array.isArray(parsed.epicas) || parsed.epicas.length === 0) {
-    throw new Error("No se detectaron epicas en el documento.");
-  }
-
-  const tokensEntrada = completion.usage?.prompt_tokens ?? 0;
-  const tokensSalida = completion.usage?.completion_tokens ?? 0;
-  const tokensTotal =
-    completion.usage?.total_tokens ?? tokensEntrada + tokensSalida;
-
-  const costoEstimadoUsd =
-    (tokensEntrada / 1_000_000) * PRECIO_GPT4OMINI.usdPorMillonEntrada +
-    (tokensSalida / 1_000_000) * PRECIO_GPT4OMINI.usdPorMillonSalida;
-
-  const uso: UsoTokens = {
-    modelo: PRECIO_GPT4OMINI.modelo,
-    tokensEntrada,
-    tokensSalida,
-    tokensTotal,
-    costoEstimadoUsd,
+export function componerDatosEpica(datosExtraidos: EpicaData) {
+  return {
+    ...datosExtraidos,
+    epicas: datosExtraidos.epicas.map((epica, indice) => ({
+      ...epica,
+      ...asignarPaleta(indice),
+    })),
+    ...HORAS_FIJAS,
   };
-
-  return { datos: parsed, uso };
 }
+
+export const epicaConfig: DocumentConfig<EpicaData> = {
+  id: "epica",
+  schema: EpicaSchema,
+  systemPrompt: EPICA_SYSTEM_PROMPT,
+  componerDatos: componerDatosEpica,
+  templatePath: path.join(__dirname, "template.html"),
+};

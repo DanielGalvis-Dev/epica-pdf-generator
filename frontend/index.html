@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Resumen de Épica · Generador PDF</title>
+    <title>Generador de Documentos Polaria</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,6 +15,7 @@
       body {
         font-family: "Inter", sans-serif;
       }
+
       #editor {
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 13px;
@@ -22,122 +23,142 @@
       }
     </style>
   </head>
-  <body class="bg-slate-100 text-slate-800 min-h-screen">
-    <div class="max-w-6xl mx-auto px-6 py-8">
+  <body class="min-h-screen bg-slate-100 text-slate-800">
+    <div class="mx-auto max-w-6xl px-6 py-8">
       <header class="mb-8">
-        <p
-          class="text-xs font-bold tracking-widest text-slate-400 uppercase mb-1"
-        >
-          Polaria · Épica Planning
+        <p class="mb-1 text-xs font-bold uppercase tracking-widest text-slate-400">
+          Polaria &middot; Documentos de producto
         </p>
-        <h1 class="text-2xl font-bold text-slate-900">
-          Generador de Resumen de Épica
+        <h1 id="page-title" class="text-2xl font-bold text-slate-900">
+          Generador de documentos
         </h1>
-        <p class="text-sm text-slate-500 mt-1">
-          Sube el documento .md del mes, revisa lo que se extrajo y descarga el
-          PDF para socios y clientes.
+        <p id="page-description" class="mt-1 text-sm text-slate-500">
+          Sube un Markdown, revisa el JSON extraido y descarga el PDF final.
         </p>
       </header>
 
-      <!-- PASO 1: subir -->
+      <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-5">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+            <h2 class="font-semibold text-slate-900">Tipo de documento</h2>
+            <p id="document-help" class="mt-1 text-sm text-slate-500">
+              Selecciona el formato antes de extraer datos.
+            </p>
+          </div>
+          <div class="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+            <button
+              type="button"
+              class="doc-tab rounded-lg px-4 py-2 text-sm font-semibold transition"
+              data-doc-type="epica"
+            >
+              Epica
+            </button>
+            <button
+              type="button"
+              class="doc-tab rounded-lg px-4 py-2 text-sm font-semibold transition"
+              data-doc-type="sprint"
+            >
+              Sprint v2
+            </button>
+          </div>
+        </div>
+      </section>
+
       <section
         id="step-upload"
-        class="bg-white rounded-2xl border border-slate-200 p-6 mb-6"
+        class="mb-6 rounded-2xl border border-slate-200 bg-white p-6"
       >
-        <div class="flex items-center gap-2 mb-4">
+        <div class="mb-4 flex items-center gap-2">
           <span
-            class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold"
+            class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white"
             >1</span
           >
-          <h2 class="font-semibold text-slate-900">Subir documento del mes</h2>
+          <h2 id="upload-title" class="font-semibold text-slate-900">
+            Subir documento
+          </h2>
         </div>
         <label
           id="dropzone"
-          class="block border-2 border-dashed border-slate-300 rounded-xl p-10 text-center cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition"
+          class="block cursor-pointer rounded-xl border-2 border-dashed border-slate-300 p-10 text-center transition hover:border-slate-400 hover:bg-slate-50"
         >
           <input type="file" id="file-input" accept=".md" class="hidden" />
-          <div class="text-slate-400 text-4xl mb-2">↑</div>
+          <div class="mb-2 text-4xl text-slate-400">&uarr;</div>
           <p class="text-sm font-medium text-slate-700">
-            Haz clic o arrastra el archivo .md aquí
+            Haz clic o arrastra el archivo .md aqui
           </p>
-          <p id="file-name" class="text-xs text-slate-400 mt-1">
-            Ningún archivo seleccionado
+          <p id="file-name" class="mt-1 text-xs text-slate-400">
+            Ningun archivo seleccionado
           </p>
         </label>
         <button
           id="btn-extraer"
           disabled
-          class="mt-4 w-full bg-slate-900 text-white rounded-xl py-3 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition flex items-center justify-center gap-2"
+          class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <span id="extraer-label">Extraer datos con IA</span>
-          <span id="extraer-spinner" class="hidden animate-spin">◠</span>
+          <span id="extraer-spinner" class="hidden animate-spin">&#9670;</span>
         </button>
-        <p id="upload-error" class="hidden mt-3 text-sm text-red-600"></p>
+        <p id="upload-error" class="mt-3 hidden text-sm text-red-600"></p>
       </section>
 
-      <!-- Tarjeta de consumo de tokens -->
       <div
         id="token-usage"
-        class="hidden mb-6 bg-slate-900 text-slate-100 rounded-xl px-4 py-3 text-sm flex items-center gap-2"
+        class="mb-6 hidden rounded-xl bg-slate-900 px-4 py-3 text-sm text-slate-100"
       >
-        <span class="text-slate-400">⚡</span>
+        <span class="text-slate-400">Tokens:</span>
         <span id="token-usage-text"></span>
       </div>
 
-      <!-- PASO 2: editar -->
       <section
         id="step-edit"
-        class="hidden bg-white rounded-2xl border border-slate-200 p-6 mb-6"
+        class="mb-6 hidden rounded-2xl border border-slate-200 bg-white p-6"
       >
-        <div class="flex items-center gap-2 mb-4">
+        <div class="mb-4 flex items-center gap-2">
           <span
-            class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold"
+            class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white"
             >2</span
           >
           <h2 class="font-semibold text-slate-900">Revisar y corregir</h2>
-          <span class="text-xs text-slate-400 ml-auto"
-            >Edita el JSON si algo quedó mal extraído</span
-          >
+          <span class="ml-auto text-xs text-slate-400">
+            Edita el JSON si algo quedo mal extraido
+          </span>
         </div>
         <textarea
           id="editor"
           rows="20"
           spellcheck="false"
-          class="w-full border border-slate-200 rounded-xl p-4 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 resize-y"
+          class="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 p-4 focus:outline-none focus:ring-2 focus:ring-slate-300"
         ></textarea>
-        <p id="json-error" class="hidden mt-2 text-sm text-red-600"></p>
-        <div class="flex gap-3 mt-4">
+        <p id="json-error" class="mt-2 hidden text-sm text-red-600"></p>
+        <div class="mt-4 flex gap-3">
           <button
             id="btn-preview"
-            class="flex-1 bg-white border border-slate-300 text-slate-700 rounded-xl py-3 text-sm font-semibold hover:bg-slate-50 transition"
+            class="flex-1 rounded-xl border border-slate-300 bg-white py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             Actualizar vista previa
           </button>
           <button
             id="btn-pdf"
-            class="flex-1 bg-emerald-600 text-white rounded-xl py-3 text-sm font-semibold hover:bg-emerald-700 transition flex items-center justify-center gap-2"
+            class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span id="pdf-label">Descargar PDF</span>
-            <span id="pdf-spinner" class="hidden animate-spin">◠</span>
+            <span id="pdf-spinner" class="hidden animate-spin">&#9670;</span>
           </button>
         </div>
       </section>
 
-      <!-- PASO 3: preview -->
       <section
         id="step-preview"
-        class="hidden bg-white rounded-2xl border border-slate-200 p-6"
+        class="hidden rounded-2xl border border-slate-200 bg-white p-6"
       >
-        <div class="flex items-center gap-2 mb-4">
+        <div class="mb-4 flex items-center gap-2">
           <span
-            class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold"
+            class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white"
             >3</span
           >
           <h2 class="font-semibold text-slate-900">Vista previa</h2>
         </div>
-        <div
-          class="rounded-xl overflow-hidden border border-slate-200 bg-slate-50"
-        >
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
           <iframe
             id="preview-frame"
             class="w-full"
@@ -148,8 +169,38 @@
     </div>
 
     <script>
-      const API = location.origin;
+      const API =
+        location.protocol === "file:" ? "http://localhost:3001" : location.origin;
+
+      const DOCUMENTS = {
+        epica: {
+          label: "Epica",
+          title: "Generador de Resumen de Epica",
+          description:
+            "Sube el documento .md del mes, revisa las epicas extraidas y descarga el PDF para socios y clientes.",
+          help: "Usa el esquema mensual de epicas, equipo, horas y riesgo transversal.",
+          uploadTitle: "Subir documento del mes",
+          filePrefix: "Resumen_Epica",
+          nameFromData(data) {
+            return data.periodo || "mes";
+          },
+        },
+        sprint: {
+          label: "Sprint v2",
+          title: "Generador de Resumen de Sprint v2",
+          description:
+            "Sube el Markdown del sprint, revisa miembros, proyectos e issues, y descarga el PDF con el diseno v2.",
+          help: "Usa el esquema Sprint v2 agrupado por miembros, proyectos e issues.",
+          uploadTitle: "Subir documento del sprint",
+          filePrefix: "Resumen_Sprint",
+          nameFromData(data) {
+            return data.sprintName || data.weekNumber || "sprint";
+          },
+        },
+      };
+
       let selectedFile = null;
+      let selectedDocType = "epica";
 
       const fileInput = document.getElementById("file-input");
       const fileName = document.getElementById("file-name");
@@ -163,6 +214,37 @@
       const btnPreview = document.getElementById("btn-preview");
       const btnPdf = document.getElementById("btn-pdf");
       const previewFrame = document.getElementById("preview-frame");
+      const tokenUsage = document.getElementById("token-usage");
+
+      function setDocumentType(docType) {
+        selectedDocType = docType;
+        const doc = DOCUMENTS[docType];
+
+        document.getElementById("page-title").textContent = doc.title;
+        document.getElementById("page-description").textContent = doc.description;
+        document.getElementById("document-help").textContent = doc.help;
+        document.getElementById("upload-title").textContent = doc.uploadTitle;
+
+        document.querySelectorAll(".doc-tab").forEach((tab) => {
+          const active = tab.dataset.docType === docType;
+          tab.classList.toggle("bg-slate-900", active);
+          tab.classList.toggle("text-white", active);
+          tab.classList.toggle("text-slate-600", !active);
+          tab.classList.toggle("hover:bg-slate-100", !active);
+        });
+
+        resetOutput();
+      }
+
+      function resetOutput() {
+        editor.value = "";
+        stepEdit.classList.add("hidden");
+        stepPreview.classList.add("hidden");
+        tokenUsage.classList.add("hidden");
+        previewFrame.removeAttribute("srcdoc");
+        jsonError.classList.add("hidden");
+        hideUploadError();
+      }
 
       function setFile(file) {
         if (!file) return;
@@ -170,28 +252,49 @@
           showUploadError("Solo se aceptan archivos .md");
           return;
         }
+
         selectedFile = file;
         fileName.textContent = file.name;
         btnExtraer.disabled = false;
         hideUploadError();
+        resetOutput();
       }
 
       function showUploadError(msg) {
         uploadError.textContent = msg;
         uploadError.classList.remove("hidden");
       }
+
       function hideUploadError() {
         uploadError.classList.add("hidden");
       }
 
+      function endpoint(path) {
+        return `${API}/api/${selectedDocType}/${path}`;
+      }
+
+      function responseError(details, fallback) {
+        if (!details) return fallback;
+        if (typeof details === "string") return details;
+        if (details.error) return details.error;
+        return fallback;
+      }
+
+      document.querySelectorAll(".doc-tab").forEach((tab) => {
+        tab.addEventListener("click", () => setDocumentType(tab.dataset.docType));
+      });
+
       fileInput.addEventListener("change", (e) => setFile(e.target.files[0]));
+
       dropzone.addEventListener("dragover", (e) => {
         e.preventDefault();
         dropzone.classList.add("border-slate-400", "bg-slate-50");
       });
-      dropzone.addEventListener("dragleave", () =>
-        dropzone.classList.remove("border-slate-400", "bg-slate-50"),
-      );
+
+      dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("border-slate-400", "bg-slate-50");
+      });
+
       dropzone.addEventListener("drop", (e) => {
         e.preventDefault();
         dropzone.classList.remove("border-slate-400", "bg-slate-50");
@@ -202,15 +305,20 @@
         if (!selectedFile) return;
         toggleExtraer(true);
         hideUploadError();
+
         try {
           const fd = new FormData();
           fd.append("archivo", selectedFile);
-          const res = await fetch(API + "/api/extraer", {
+
+          const res = await fetch(endpoint("extraer"), {
             method: "POST",
             body: fd,
           });
           const respuesta = await res.json();
-          if (!res.ok) throw new Error(respuesta.error || "Error al extraer.");
+          if (!res.ok) {
+            throw new Error(responseError(respuesta, "Error al extraer."));
+          }
+
           editor.value = JSON.stringify(respuesta.datos, null, 2);
           mostrarUsoTokens(respuesta.uso);
           stepEdit.classList.remove("hidden");
@@ -225,9 +333,9 @@
 
       function mostrarUsoTokens(uso) {
         if (!uso) return;
-        const box = document.getElementById("token-usage");
         const fmt = (n) => n.toLocaleString("es-CO");
         document.getElementById("token-usage-text").textContent =
+          " " +
           uso.modelo +
           " · " +
           fmt(uso.tokensEntrada) +
@@ -238,11 +346,11 @@
           " tokens totales · ~$" +
           uso.costoEstimadoUsd.toFixed(4) +
           " USD";
-        box.classList.remove("hidden");
+        tokenUsage.classList.remove("hidden");
       }
 
       function toggleExtraer(loading) {
-        btnExtraer.disabled = loading;
+        btnExtraer.disabled = loading || !selectedFile;
         document.getElementById("extraer-label").textContent = loading
           ? "Extrayendo..."
           : "Extraer datos con IA";
@@ -257,7 +365,7 @@
           jsonError.classList.add("hidden");
           return data;
         } catch (e) {
-          jsonError.textContent = "JSON inválido: " + e.message;
+          jsonError.textContent = "JSON invalido: " + e.message;
           jsonError.classList.remove("hidden");
           return null;
         }
@@ -266,50 +374,70 @@
       async function refreshPreview() {
         const data = parseEditor();
         if (!data) return;
-        const res = await fetch(API + "/api/preview", {
+
+        const res = await fetch(endpoint("preview"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
-        const html = await res.text();
-        previewFrame.srcdoc = html;
+
+        const text = await res.text();
+        if (!res.ok) {
+          try {
+            const details = JSON.parse(text);
+            throw new Error(responseError(details, "Error al generar preview."));
+          } catch (err) {
+            throw new Error(err.message || "Error al generar preview.");
+          }
+        }
+
+        previewFrame.srcdoc = text;
         stepPreview.classList.remove("hidden");
-        // escala el iframe (1288px de ancho real) para que quepa en el contenedor
-        const scale = previewFrame.clientWidth / 1288;
+
         previewFrame.onload = () => {
           try {
             const doc = previewFrame.contentDocument;
+            const scale = previewFrame.clientWidth / 1240;
             doc.body.style.transform = "scale(" + scale + ")";
             doc.body.style.transformOrigin = "top left";
-            doc.body.style.width = "1288px";
+            doc.body.style.width = "1240px";
           } catch (e) {}
         };
       }
 
-      btnPreview.addEventListener("click", refreshPreview);
+      btnPreview.addEventListener("click", async () => {
+        try {
+          await refreshPreview();
+        } catch (err) {
+          jsonError.textContent = err.message;
+          jsonError.classList.remove("hidden");
+        }
+      });
 
       btnPdf.addEventListener("click", async () => {
         const data = parseEditor();
         if (!data) return;
         togglePdf(true);
+
         try {
-          const res = await fetch(API + "/api/pdf", {
+          const res = await fetch(endpoint("pdf"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
           });
+
           if (!res.ok) {
             const err = await res.json();
-            throw new Error(err.error || "Error al generar el PDF.");
+            throw new Error(responseError(err, "Error al generar el PDF."));
           }
+
           const blob = await res.blob();
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
+          const doc = DOCUMENTS[selectedDocType];
+          const suffix = doc.nameFromData(data).replace(/[^a-zA-Z0-9]/g, "_");
           a.href = url;
-          a.download =
-            "Resumen_Epica_" +
-            (data.periodo || "mes").replace(/[^a-zA-Z0-9]/g, "_") +
-            ".pdf";
+          a.download = `${doc.filePrefix}_${suffix}.pdf`;
           a.click();
           URL.revokeObjectURL(url);
         } catch (err) {
@@ -329,6 +457,8 @@
           .getElementById("pdf-spinner")
           .classList.toggle("hidden", !loading);
       }
+
+      setDocumentType(selectedDocType);
     </script>
   </body>
 </html>
