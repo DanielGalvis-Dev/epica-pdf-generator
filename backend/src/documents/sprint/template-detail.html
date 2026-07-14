@@ -35,7 +35,7 @@
       }
 
       body {
-        width: 840px;
+        width: 900px;
         min-height: 1188px;
         padding: 24px;
         background: var(--bg-page);
@@ -237,6 +237,7 @@
         align-items: center;
         border-radius: 5px;
         display: inline-flex;
+        justify-content: center;
         flex-shrink: 0;
         font-size: 9.5px;
         font-weight: 700;
@@ -244,28 +245,49 @@
         letter-spacing: 0.03em;
         padding: 3px 8px;
         white-space: nowrap;
+        width: 108px;
       }
 
       .issue-priority {
         align-items: center;
         display: inline-flex;
+        justify-content: center;
         flex-shrink: 0;
         font-size: 10px;
         font-weight: 600;
         gap: 3px;
-        min-width: 72px;
         white-space: nowrap;
+        width: 76px;
       }
 
       .issue-status {
+        align-items: center;
         border-radius: 5px;
+        display: inline-flex;
+        justify-content: center;
         flex-shrink: 0;
         font-size: 9.5px;
-        font-weight: 600;
-        min-width: 90px;
-        padding: 3px 10px;
-        text-align: center;
+        font-weight: 700;
+        gap: 4px;
+        letter-spacing: 0.03em;
+        padding: 3px 8px;
         white-space: nowrap;
+        width: 108px;
+      }
+
+      .issue-agregado {
+        align-items: center;
+        border-radius: 5px;
+        display: inline-flex;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 9.5px;
+        font-weight: 700;
+        gap: 4px;
+        letter-spacing: 0.03em;
+        padding: 3px 8px;
+        white-space: nowrap;
+        width: 92px;
       }
     </style>
   </head>
@@ -333,7 +355,13 @@
                     class="issue-status"
                     style="background: {{this.statusBg}}; color: {{this.statusColor}}"
                   >
-                    {{this.status}}
+                    <i class="ti {{this.statusIcon}}"></i>{{this.status}}
+                  </span>
+                  <span
+                    class="issue-agregado"
+                    style="background: {{this.agregadoBg}}; color: {{this.agregadoColor}}"
+                  >
+                    <i class="ti {{this.agregadoIcon}}"></i>{{this.agregadoLabel}}
                   </span>
                 </div>
                 {{/each}}

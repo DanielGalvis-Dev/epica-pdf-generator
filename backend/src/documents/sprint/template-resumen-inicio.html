@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Resumen de Épica</title>
+    <title>Resumen de Sprint</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -94,11 +94,11 @@
       }
       .date-arrow {
         color: var(--teal);
-        font-size: 16px; /* Ajusta este valor si la flecha se ve muy grande o pequeña */
+        font-size: 16px;
         vertical-align: middle;
         margin: 0 4px;
         position: relative;
-        top: -1px; /* Ajuste fino para centrarlo visualmente con los números */
+        top: -1px;
       }
       .header-meta {
         font-size: 11px;
@@ -193,53 +193,127 @@
         color: var(--ink-600);
         line-height: 1.5;
       }
-      .kpi-row {
-        display: flex;
-        gap: 4px;
-        flex-wrap: nowrap;
+
+      .stats-box {
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
       }
-      .kpi-pill {
-        font-size: 9.5px;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        padding: 5px 7px;
-        border-radius: 7px;
-        white-space: nowrap;
-      }
-      .result-box {
-        border-radius: 10px;
-        padding: 12px 14px;
-        display: flex;
-        gap: 8px;
-        align-items: flex-start;
-        font-size: 12px;
-        line-height: 1.5;
-        color: var(--ink-900);
-        margin: none;
-      }
-      .result-box .check {
-        flex-shrink: 0;
-        font-weight: 700;
-      }
-      .risk-box {
-        border-top: 1px dashed var(--card-border);
-        padding-top: 12px;
-      }
-      .risk-label {
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        color: #b45309;
-        text-transform: uppercase;
+      .stats-row-head {
         display: flex;
         align-items: center;
-        gap: 5px;
-        margin-bottom: 5px;
+        justify-content: space-between;
+        gap: 12px;
       }
-      .risk-text {
-        font-size: 11.5px;
+      .stats-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink-900);
+      }
+      .stats-subtitle {
+        font-size: 10.5px;
+        color: var(--ink-400);
+        margin-top: 1px;
+        margin-bottom: 10px;
+      }
+      .stats-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .stats-legend-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
         color: var(--ink-600);
-        line-height: 1.5;
+        white-space: nowrap;
+      }
+      .stats-legend-val {
+        margin-left: 6px;
+        font-weight: 700;
+        color: var(--ink-900);
+      }
+      .stats-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .stats-divider {
+        border-top: 1px solid var(--card-border);
+        margin: 16px 0;
+      }
+
+      .donut {
+        position: relative;
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .donut-hole {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .donut-num {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--navy-900);
+        line-height: 1;
+      }
+      .donut-lbl {
+        font-size: 7.5px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        color: var(--ink-400);
+        text-transform: uppercase;
+        margin-top: 2px;
+      }
+
+      .estado-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+      .donut-sm {
+        width: 84px;
+        height: 84px;
+      }
+      .donut-hole-sm {
+        width: 48px;
+        height: 48px;
+      }
+      .estado-legend {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-flow: column;
+        grid-template-rows: repeat(5, auto);
+        gap: 6px 18px;
+        flex: 1;
+      }
+      .estado-legend-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10.5px;
+        color: var(--ink-600);
+        white-space: nowrap;
+      }
+      .estado-legend-row .stats-legend-val {
+        margin-left: auto;
       }
 
       .footer-row {
@@ -248,13 +322,13 @@
         border-radius: 16px;
         padding: 20px 22px;
         display: grid;
-        grid-template-columns: 1fr 1fr 1.3fr; /* Corregido: 3 columnas para 3 contenedores */
+        grid-template-columns: 1fr 1fr 1.3fr;
         gap: 0;
       }
 
       .footer-grid-quien-donde-cuando-como {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* Corregido: Layout 2x2 para los 4 items */
+        grid-template-columns: 1fr 1fr;
         gap: 18px;
         padding-right: 18px;
       }
@@ -266,7 +340,7 @@
 
       .footer-col-riesgo {
         padding-left: 18px;
-        border-left: 1px solid var(--card-border); /* Añadido borde para separar del bloque de horas */
+        border-left: 1px solid var(--card-border);
       }
 
       .footer-icon-circle {
@@ -420,31 +494,35 @@
     <div class="page">
       <div class="header">
         <div class="header-left">
-          <div class="eyebrow">RESUMEN DE ÉPICA · EQUIPO DE PRODUCTO</div>
-          <div class="title">ÉPICA <span class="accent">{{periodo}}</span></div>
+          <div class="eyebrow">RESUMEN DE SPRINT · EQUIPO DE PRODUCTO</div>
+          <div class="title">
+            SPRINT <span class="accent">{{sprintName}}</span>
+          </div>
         </div>
         <div class="header-right">
           <div class="date-badge">
-            {{fechaInicio}}
-            <i class="ti ti-arrow-right date-arrow"></i> {{fechaFin}}
+            {{dateStart}}
+            <i class="ti ti-arrow-right date-arrow"></i> {{dateEnd}}
           </div>
-          <div class="header-meta">{{duracion}} · TODO EL EQUIPO</div>
+          <div class="header-meta">
+            SEMANA {{weekNumber}} · {{teamSize}} MIEMBROS
+          </div>
           <div class="legend">
-            {{#each epicas}}
+            {{#each members}}
             <span class="legend-item"
               ><span
                 class="legend-dot"
                 style="background:{{this.colorAccent}}"
               ></span
-              >{{this.nombreCorto}}</span
+              >{{this.name}}</span
             >
             {{/each}}
           </div>
         </div>
       </div>
 
-      <div class="cards-grid" style="--card-count: {{epicas.length}}">
-        {{#each epicas}}
+      <div class="cards-grid" style="--card-count: {{members.length}}">
+        {{#each members}}
         <div class="epic-card">
           <div class="epic-card-head">
             <div class="epic-card-head-left">
@@ -456,45 +534,53 @@
               </div>
               <div>
                 <div class="epic-title" style="color: {{this.colorAccent}};">
-                  {{this.nombreCorto}}
+                  {{this.name}}
                 </div>
-                <div class="epic-subtitle">{{this.subtitulo}}</div>
+                <div class="epic-subtitle">
+                  {{this.projectCount}} PROYECTOS · {{this.totalIssues}} ISSUES
+                </div>
               </div>
             </div>
             <div
               class="epic-owner-badge"
               style="background:{{this.colorBgBadge}}; color:{{this.colorAccent}}"
             >
-              {{this.responsable}}
+              {{this.initials}}
             </div>
           </div>
+
           <div>
             <div class="epic-section-label">Objetivo</div>
             <div class="epic-section-text">{{this.objetivo}}</div>
           </div>
-          <div>
-            <div class="epic-section-label">Alcance</div>
-            <div class="epic-section-text">{{this.alcance}}</div>
-          </div>
-          <div>
-            <div class="epic-section-label">KPI del mes</div>
-            <div class="kpi-row">
-              {{#each this.kpis}}
-              <span
-                class="kpi-pill"
-                style="background:{{../colorBgIcon}}; color:{{../colorAccent}}"
-                >{{this}}</span
+
+          <div class="stats-box">
+            <div class="stats-title">Por estado</div>
+            <div class="stats-subtitle">Distribución por estado</div>
+            <div class="estado-row">
+              <div
+                class="donut donut-sm"
+                style="background:{{this.estadoGradient}}"
               >
-              {{/each}}
+                <div class="donut-hole donut-hole-sm">
+                  <span class="donut-num">{{this.totalIssues}}</span>
+                  <span class="donut-lbl">Total</span>
+                </div>
+              </div>
+              <div class="estado-legend">
+                {{#each this.estadoConteos}}
+                <div class="estado-legend-row">
+                  <span
+                    class="stats-dot"
+                    style="background:{{this.color}}"
+                  ></span>
+                  {{this.label}}<span class="stats-legend-val"
+                    >{{this.valor}}</span
+                  >
+                </div>
+                {{/each}}
+              </div>
             </div>
-          </div>
-          <div class="result-box" style="background:{{this.colorBgResult}}">
-            <span class="check" style="color:{{this.colorAccent}}">✓</span>
-            <span>{{this.resultadoEsperado}}</span>
-          </div>
-          <div class="risk-box">
-            <div class="risk-label">⚠ Riesgo</div>
-            <div class="risk-text">{{this.riesgo}}</div>
           </div>
         </div>
         {{/each}}
@@ -541,7 +627,7 @@
             </div>
             <span class="hours-badge">ESTIMADO</span>
           </div>
-          <div class="hours-sub">Por mes · de {{horas.total}}h totales</div>
+          <div class="hours-sub">Por semana · de {{horas.total}}h totales</div>
           <div class="bar-track">
             {{#each horas.segmentos}}
             <div

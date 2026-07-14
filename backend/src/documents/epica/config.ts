@@ -7,11 +7,11 @@ const EpicaItemSchema = z.object({
   nombreCorto: z.string(),
   subtitulo: z.string(),
   responsable: z.string(),
-  objetivo: z.string(),
-  alcance: z.string(),
+  objetivo: z.string().max(260),
+  alcance: z.string().max(200),
   kpis: z.array(z.string()).min(1),
-  resultadoEsperado: z.string(),
-  riesgo: z.string(),
+  resultadoEsperado: z.string().max(200),
+  riesgo: z.string().max(200),
 });
 
 export const EpicaSchema = z.object({
@@ -21,14 +21,14 @@ export const EpicaSchema = z.object({
   duracion: z.string(),
   epicas: z.array(EpicaItemSchema).min(1),
   equipo: z.object({
-    quien: z.string(),
-    cuando: z.string(),
-    donde: z.string(),
-    como: z.string(),
+    quien: z.string().max(150),
+    cuando: z.string().max(150),
+    donde: z.string().max(150),
+    como: z.string().max(150),
   }),
   riesgoTransversal: z.object({
-    texto: z.string(),
-    mitigacion: z.string(),
+    texto: z.string().max(320),
+    mitigacion: z.string().max(200),
   }),
 });
 
@@ -101,5 +101,8 @@ export const epicaConfig: DocumentConfig<EpicaData> = {
   schema: EpicaSchema,
   systemPrompt: EPICA_SYSTEM_PROMPT,
   componerDatos: componerDatosEpica,
-  templatePath: path.join(__dirname, "template.html"),
+  templates: {
+    default: { path: path.join(__dirname, "template.html") },
+  },
+  defaultTemplate: "default",
 };

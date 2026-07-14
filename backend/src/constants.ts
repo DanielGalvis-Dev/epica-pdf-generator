@@ -21,50 +21,76 @@ export const PRECIO_GPT4OMINI = {
   usdPorMillonSalida: 0.6,
 };
 
-// Bloque de horas FIJO. No se extrae del .md, no cambia mes a mes.
-// Si el equipo cambia su distribucion de tiempo, se edita aqui una sola vez.
+// Bloque de horas FIJO, en base MENSUAL (4 semanas). No se extrae del .md,
+// no cambia mes a mes. Si el equipo cambia su distribucion de tiempo, se
+// edita aqui una sola vez (mantener el total y cada "horas" en base mensual).
+//
+// Personalizaciones y Team building estan ocultos temporalmente (2026-07-06):
+// sus 76.8h (52.8 + 24) se redistribuyeron proporcionalmente al peso previo de
+// Proyectos e Incidencias (312 vs 52.8). Para revertir: descomentar esos dos
+// segmentos y devolver Proyectos a pct:65/horas:"312" e Incidencias a
+// pct:11/horas:"52.8".
 export const HORAS_FIJAS: DatosFijos = {
   horas: {
-    total: 120,
+    total: 480,
     segmentos: [
       {
         nombre: "Proyectos (3 objetivos)",
-        pct: 65,
-        horas: "78",
+        pct: 79,
+        horas: "377.7",
         color: "#0b1430",
         mostrarPct: true,
       },
       {
         nombre: "Reuniones",
         pct: 8,
-        horas: "9.6",
+        horas: "38.4",
         color: "#94a3c4",
         mostrarPct: false,
       },
       {
         nombre: "Incidencias",
-        pct: 11,
-        horas: "13.2",
+        pct: 13,
+        horas: "63.9",
         color: "#e08a2e",
         mostrarPct: false,
       },
-      {
-        nombre: "Personalizaciones",
-        pct: 11,
-        horas: "13.2",
-        color: "#8b5cf6",
-        mostrarPct: false,
-      },
-      {
-        nombre: "Team building",
-        pct: 5,
-        horas: "6",
-        color: "#ec4899",
-        mostrarPct: false,
-      },
+      // {
+      //   nombre: "Personalizaciones",
+      //   pct: 11,
+      //   horas: "52.8",
+      //   color: "#8b5cf6",
+      //   mostrarPct: false,
+      // },
+      // {
+      //   nombre: "Team building",
+      //   pct: 5,
+      //   horas: "24",
+      //   color: "#ec4899",
+      //   mostrarPct: false,
+      // },
     ],
   },
 };
+
+// Formatea un numero de horas sin decimales innecesarios (78 en vez de 78.0).
+export function formatearHoras(valor: number): string {
+  return Number.isInteger(valor) ? String(valor) : valor.toFixed(1);
+}
+
+// Escala HORAS_FIJAS (base mensual) a otro periodo, ej. una semana del sprint.
+// Mantiene los porcentajes y solo recalcula el total y las horas de cada segmento.
+export function escalarHoras(horasFijas: DatosFijos, factor: number): DatosFijos {
+  return {
+    horas: {
+      total: Math.round(horasFijas.horas.total * factor),
+      segmentos: horasFijas.horas.segmentos.map((segmento) => ({
+        ...segmento,
+        horas: formatearHoras(Number(segmento.horas) * factor),
+      })),
+    },
+  };
+}
 
 // Paletas por epica. Se asignan en orden (epica 1 -> azul, 2 -> teal, 3 -> coral...).
 // Soporta N epicas; si hay mas que paletas, cicla.

@@ -3,7 +3,20 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { DocumentConfig } from "../../documents/types";
 import { PRECIO_GPT4OMINI } from "../../constants";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// timeout/maxRetries: evita que un request colgado bloquee el handler Express
+// indefinidamente (esto lo invoca tambien un workflow de n8n que necesita
+// comportamiento predecible). El SDK oficial `openai` (v4.104.0, ver
+// node_modules/openai/core.js, metodo `shouldRetry` ~L402-423) ya distingue
+// errores transitorios de permanentes por defecto: solo reintenta HTTP
+// 408/409/429 y >=500 (o timeouts/errores de red, manejados aparte en
+// `makeRequest` ~L326-332), y NO reintenta 400/401/403/404/422 (request mal
+// formado o auth invalida) porque `shouldRetry` devuelve `false` para esos
+// status. No hace falta pasar `shouldRetry` custom.
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  timeout: 30_000,
+  maxRetries: 2,
+});
 
 export interface UsoTokens {
   modelo: string;

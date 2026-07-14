@@ -62,6 +62,16 @@
             </button>
           </div>
         </div>
+        <div
+          id="template-selector"
+          class="mt-4 hidden items-center gap-3 border-t border-slate-100 pt-4"
+        >
+          <span class="text-sm font-medium text-slate-500">Plantilla</span>
+          <div
+            id="template-tabs"
+            class="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1"
+          ></div>
+        </div>
       </section>
 
       <section
@@ -196,11 +206,20 @@
           nameFromData(data) {
             return data.sprintName || data.weekNumber || "sprint";
           },
+          templates: [
+            { key: "detail", label: "Detalle" },
+            { key: "resumen-inicio", label: "Resumen inicio" },
+            { key: "resumen", label: "Resumen fin" },
+            { key: "resumen-v2", label: "Resumen fin v2" },
+          ],
         },
       };
 
       let selectedFile = null;
       let selectedDocType = "epica";
+      let selectedTemplate = null;
+      const templateSelector = document.getElementById("template-selector");
+      const templateTabs = document.getElementById("template-tabs");
 
       const fileInput = document.getElementById("file-input");
       const fileName = document.getElementById("file-name");
@@ -233,8 +252,59 @@
           tab.classList.toggle("hover:bg-slate-100", !active);
         });
 
+        renderTemplateTabs(doc.templates || null);
         resetOutput();
         await loadSamplePreview();
+      }
+
+      function renderTemplateTabs(templates) {
+        templateTabs.innerHTML = "";
+        if (!templates || templates.length === 0) {
+          templateSelector.classList.add("hidden");
+          templateSelector.classList.remove("flex");
+          selectedTemplate = null;
+          return;
+        }
+
+        selectedTemplate = templates[0].key;
+        templateSelector.classList.remove("hidden");
+        templateSelector.classList.add("flex");
+
+        templates.forEach((tpl) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.dataset.templateKey = tpl.key;
+          btn.textContent = tpl.label;
+          btn.className = "template-tab rounded-lg px-4 py-2 text-sm font-semibold transition";
+          btn.addEventListener("click", () => setSelectedTemplate(tpl.key));
+          templateTabs.appendChild(btn);
+        });
+        updateTemplateTabsUI();
+      }
+
+      function updateTemplateTabsUI() {
+        templateTabs.querySelectorAll(".template-tab").forEach((tab) => {
+          const active = tab.dataset.templateKey === selectedTemplate;
+          tab.classList.toggle("bg-slate-900", active);
+          tab.classList.toggle("text-white", active);
+          tab.classList.toggle("text-slate-600", !active);
+          tab.classList.toggle("hover:bg-slate-100", !active);
+        });
+      }
+
+      async function setSelectedTemplate(key) {
+        selectedTemplate = key;
+        updateTemplateTabsUI();
+        if (editor.value.trim()) {
+          try {
+            await refreshPreview();
+          } catch (err) {
+            jsonError.textContent = err.message;
+            jsonError.classList.remove("hidden");
+          }
+        } else {
+          await loadSamplePreview();
+        }
       }
 
       function resetOutput() {
@@ -297,7 +367,10 @@
 
       async function loadSamplePreview() {
         try {
-          const res = await fetch(endpoint("sample-preview"));
+          const query = selectedTemplate
+            ? `?plantilla=${encodeURIComponent(selectedTemplate)}`
+            : "";
+          const res = await fetch(endpoint("sample-preview") + query);
           const html = await res.text();
           if (!res.ok) {
             throw new Error("No se pudo cargar el ejemplo.");
@@ -313,7 +386,7 @@
       function responseError(details, fallback) {
         if (!details) return fallback;
         if (typeof details === "string") return details;
-        if (details.error) return details.error;
+        if (details.message) return details.message;
         return fallback;
       }
 
@@ -415,7 +488,7 @@
         const res = await fetch(endpoint("preview"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify({ datos: data, plantilla: selectedTemplate }),
         });
 
         const text = await res.text();
@@ -449,7 +522,7 @@
           const res = await fetch(endpoint("pdf"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
+            body: JSON.stringify({ datos: data, plantilla: selectedTemplate }),
           });
 
           if (!res.ok || !res.headers.get("content-type")?.includes("application/pdf")) {
