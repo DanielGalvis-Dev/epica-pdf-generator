@@ -37,7 +37,6 @@ export async function extraer<T>(
 ): Promise<ResultadoExtraccion<T>> {
   const completion = await openai.beta.chat.completions.parse({
     model: PRECIO_GPT5MINI.modelo,
-    temperature: 0.2,
     response_format: zodResponseFormat(config.schema, `${config.id}_schema`),
     messages: [
       { role: "system", content: config.systemPrompt },
