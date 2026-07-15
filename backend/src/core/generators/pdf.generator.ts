@@ -188,12 +188,17 @@ export async function generarPdf<T>(
       // waitForTimeout(300) fijo a ciegas que podia quedarse corto o de mas.
       await page.evaluate(() => document.fonts.ready);
 
-      // El contenido (ej. la lista de issues de sprint/detail) puede crecer mas alla
-      // del alto configurado en la plantilla. Medimos el alto real renderizado y lo
-      // usamos si es mayor, para que la pagina se ajuste al contenido en vez de
-      // recortarlo. Nunca achicamos por debajo del alto de diseno de la plantilla.
-      const contentHeight = await page.evaluate(() => document.documentElement.scrollHeight);
-      const finalHeight = Math.max(contentHeight, viewportHeight);
+      // El contenido (ej. la lista de issues de sprint/detail) puede ser mas chico o
+      // mas grande que el alto configurado en la plantilla. Medimos el alto real
+      // renderizado y lo usamos tal cual, para que la pagina se ajuste al contenido
+      // real en ambos sentidos (crece si no entra, se achica si sobra espacio) en
+      // vez de quedar con blanco de mas o recortar contenido. Usamos
+      // document.body.scrollHeight, NO document.documentElement.scrollHeight: el
+      // <html> siempre se estira para llenar al menos el viewport (comportamiento
+      // por defecto del navegador), asi que nunca reporta menos que el alto del
+      // viewport aunque el contenido real sea mas chico — eso rompia el achique.
+      const contentHeight = await page.evaluate(() => document.body.scrollHeight);
+      const finalHeight = contentHeight;
 
       // El await de page.pdf() debe resolver ANTES de cerrar el render surface que
       // lo genero (antes era browser.close(), ahora es context.close() porque el
