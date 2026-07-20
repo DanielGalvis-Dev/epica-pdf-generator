@@ -86,9 +86,25 @@ Reglas generales y de control de longitud:
 - Si el documento no menciona explicitamente el riesgo transversal o el bloque de equipo (quien/cuando/donde/como), infiere los valores a partir del conjunto de epicas de la forma mas razonable y concreta posible, respetando los mismos rangos de caracteres.
 - Responde solo con el JSON.`;
 
+// La IA no siempre respeta la instruccion del prompt de incluir el año en
+// "periodo" (probado 2026-07-20: fallo en varias corridas reales pese a
+// reforzar el prompt), asi que se garantiza en codigo: si no trae un año de
+// 4 digitos, se le agrega uno. Preferimos el año que la IA haya podido dejar
+// en fechaInicio/fechaFin (por si en algun caso si lo incluye, aunque el
+// prompt les pide formato corto sin año) antes de caer al año del sistema.
+// Esto es lo que consume n8n para calcular festivos del ciclo (ver
+// epica_workflow_drive en memoria) y lo que se muestra en el encabezado del PDF.
+function asegurarAnioEnPeriodo(periodo: string, fechaInicio: string, fechaFin: string): string {
+  if (/\d{4}/.test(periodo)) return periodo;
+  const anio =
+    fechaInicio.match(/\d{4}/)?.[0] ?? fechaFin.match(/\d{4}/)?.[0] ?? String(new Date().getFullYear());
+  return `${periodo} ${anio}`;
+}
+
 export function componerDatosEpica(datosExtraidos: EpicaData) {
   return {
     ...datosExtraidos,
+    periodo: asegurarAnioEnPeriodo(datosExtraidos.periodo, datosExtraidos.fechaInicio, datosExtraidos.fechaFin),
     epicas: datosExtraidos.epicas.map((epica, indice) => ({
       ...epica,
       ...asignarPaleta(indice),
