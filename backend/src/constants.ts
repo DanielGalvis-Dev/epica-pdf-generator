@@ -25,19 +25,25 @@ export const PRECIO_GPT4OMINI = {
 // no cambia mes a mes. Si el equipo cambia su distribucion de tiempo, se
 // edita aqui una sola vez (mantener el total y cada "horas" en base mensual).
 //
-// Personalizaciones y Team building estan ocultos temporalmente (2026-07-06):
-// sus 76.8h (52.8 + 24) se redistribuyeron proporcionalmente al peso previo de
-// Proyectos e Incidencias (312 vs 52.8). Para revertir: descomentar esos dos
-// segmentos y devolver Proyectos a pct:65/horas:"312" e Incidencias a
-// pct:11/horas:"52.8".
+// Team building sigue oculto temporalmente (2026-07-06): sus 24h siguen
+// redistribuidas dentro de Proyectos/Incidencias. Personalizaciones se
+// reactivo el 2026-07-20 con horas reales (no el valor generico anterior de
+// 52.8h): Daniel 47.25h (cronograma real del ciclo, ver
+// CRONOGRAMA_20JUL-16AGO_2026.md en D:\POLARIA) + Mauro 48h (30% de su
+// capacidad mensual de 160h) + Lucho 0h = 95.25h, redondeado a 95.3h. Esas
+// horas se le restaron a Proyectos e Incidencias en la misma proporcion
+// 85.53%/14.47% (peso 312 vs 52.8) con la que se les habia sumado al
+// ocultar Personalizaciones. Si Personalizaciones vuelve a ocultarse o su
+// valor cambia otra vez, recalcular Proyectos/Incidencias con esa misma
+// proporcion para mantener el total en 480h.
 export const HORAS_FIJAS: DatosFijos = {
   horas: {
     total: 480,
     segmentos: [
       {
         nombre: "Proyectos (3 objetivos)",
-        pct: 79,
-        horas: "377.7",
+        pct: 62,
+        horas: "296.2",
         color: "#0b1430",
         mostrarPct: true,
       },
@@ -50,18 +56,18 @@ export const HORAS_FIJAS: DatosFijos = {
       },
       {
         nombre: "Incidencias",
-        pct: 13,
-        horas: "63.9",
+        pct: 10,
+        horas: "50.1",
         color: "#e08a2e",
         mostrarPct: false,
       },
-      // {
-      //   nombre: "Personalizaciones",
-      //   pct: 11,
-      //   horas: "52.8",
-      //   color: "#8b5cf6",
-      //   mostrarPct: false,
-      // },
+      {
+        nombre: "Personalizaciones",
+        pct: 20,
+        horas: "95.3",
+        color: "#8b5cf6",
+        mostrarPct: false,
+      },
       // {
       //   nombre: "Team building",
       //   pct: 5,
