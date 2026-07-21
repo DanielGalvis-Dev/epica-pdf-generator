@@ -10,7 +10,7 @@ Aceptado
 
 La implementación original de `generarPdf()` llamaba `await chromium.launch()` dentro de cada request y cerraba ese browser completo (`browser.close()`) en el `finally`. El propio comentario introducido junto con el cambio lo explica sin ambigüedad: *"Lanzar un `chromium.launch()` por request es el cuello de botella crítico bajo carga concurrente (cada launch es un proceso de Chromium completo -> riesgo de OOM)."*
 
-Ese riesgo, antes teórico, se vuelve concreto con dos factores que aparecen en paralelo: (1) la incorporación de un caller externo de mayor volumen potencial — el workflow de n8n descrito en `PLAN-N8N-SPRINT-WORKFLOW.md`, que llamará a `POST /api/sprint/pdf` desde la nube — sumado al uso normal del frontend; y (2) documentos cuyo render puede ser pesado (`sprint`/`detail` con muchos issues, ver ADR-0004 sobre el alto auto-ajustable). Varios requests concurrentes lanzando cada uno un proceso Chromium completo, en un servidor que probablemente corre en una instancia modesta (1-2 vCPU), es una vía directa a quedarse sin memoria.
+Ese riesgo, antes teórico, se vuelve concreto con dos factores que aparecen en paralelo: (1) la incorporación de un caller externo de mayor volumen potencial — el workflow de n8n descrito en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, que llamará a `POST /api/sprint/pdf` desde la nube — sumado al uso normal del frontend; y (2) documentos cuyo render puede ser pesado (`sprint`/`detail` con muchos issues, ver ADR-0004 sobre el alto auto-ajustable). Varios requests concurrentes lanzando cada uno un proceso Chromium completo, en un servidor que probablemente corre en una instancia modesta (1-2 vCPU), es una vía directa a quedarse sin memoria.
 
 ## Opciones consideradas
 
@@ -38,7 +38,7 @@ Opción 2. Un browser singleton (`getBrowser()`, con lanzamiento perezoso) más 
 ## Consecuencias negativas
 
 - `MAX_CONCURRENT_RENDERS = 4` es un número fijo en el código fuente, no calculado dinámicamente según la carga real de CPU/memoria del host — si el hardware cambia (más o menos vCPU), hay que ajustarlo a mano.
-- El timeout de render (`RENDER_TIMEOUT_MS = 15_000`) protege contra un render colgado que retenga un slot de la cola para siempre, pero también implica que un documento legítimamente grande que tarde más de 15 segundos en generar su PDF falla con error, sin que el caller pueda pedir un timeout mayor para ese caso puntual (ver la nota correspondiente en `PLAN-N8N-SPRINT-WORKFLOW.md`, que ya asume este límite como un fallo esperado, no configurable desde n8n).
+- El timeout de render (`RENDER_TIMEOUT_MS = 15_000`) protege contra un render colgado que retenga un slot de la cola para siempre, pero también implica que un documento legítimamente grande que tarde más de 15 segundos en generar su PDF falla con error, sin que el caller pueda pedir un timeout mayor para ese caso puntual (ver la nota correspondiente en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, que ya asume este límite como un fallo esperado, no configurable desde n8n).
 - Toda la aplicación depende de un único proceso Chromium: si ese proceso muere mientras hay renders en curso, todos ellos fallan a la vez (aunque el siguiente request sí pueda relanzar el browser desde cero).
 
 ## Notas de seguimiento

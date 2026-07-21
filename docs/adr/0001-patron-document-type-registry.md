@@ -37,7 +37,7 @@ Opción 2: patrón "document type" con registro. `document.routes.ts` expone 4 e
 ## Consecuencias negativas
 
 - Todo documento debe encajar en el mismo contrato (`schema` Zod + `systemPrompt` + `componerDatos` + `templates`/`defaultTemplate`); un documento que no use extracción por IA, o que necesite una forma de render distinta, forzaría a estirar `DocumentConfig<T>` con campos opcionales o a salirse del patrón como caso especial.
-- Los errores de configuración de plantilla se resuelven en runtime con fallback silencioso (`templateKey` inválido cae al `defaultTemplate` sin avisar, ver `resolveTemplate` en `pdf.generator.ts`) en vez de fallar en tiempo de compilación — un `plantilla` mal escrito desde el frontend o desde n8n no se detecta hasta que el resultado visual es el inesperado (este riesgo ya está identificado en `PLAN-N8N-SPRINT-WORKFLOW.md`, que agrega una validación explícita de `plantilla` en el workflow de n8n precisamente por este motivo).
+- Los errores de configuración de plantilla se resuelven en runtime con fallback silencioso (`templateKey` inválido cae al `defaultTemplate` sin avisar, ver `resolveTemplate` en `pdf.generator.ts`) en vez de fallar en tiempo de compilación — un `plantilla` mal escrito desde el frontend o desde n8n no se detecta hasta que el resultado visual es el inesperado (este riesgo ya está identificado en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, que agrega una validación explícita de `plantilla` en el workflow de n8n precisamente por este motivo).
 
 ## Notas de seguimiento
 

@@ -1,7 +1,7 @@
 # ADR-0006: Extracción determinística (HTTP directo + `POST /api/sprint/extraer`) en vez de un AI Agent multi-turno para sincronizar datos de Linear en el workflow de n8n
 
 ## Fecha
-2026-07-14. Decisión tomada durante la construcción real del workflow en n8n (después de `PLAN-N8N-SPRINT-WORKFLOW.md` y `AUDITORIA-PLAN-N8N-SPRINT-WORKFLOW.md`), al confirmarse en pruebas contra ejecuciones reales que el AI Agent fallaba de forma dura (crash, no rama de reintento) cuando el parser estructurado no podía interpretar su salida.
+2026-07-14. Decisión tomada durante la construcción real del workflow en n8n (después de `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md` y `docs/planning/AUDITORIA-PLAN-N8N-SPRINT-WORKFLOW.md`), al confirmarse en pruebas contra ejecuciones reales que el AI Agent fallaba de forma dura (crash, no rama de reintento) cuando el parser estructurado no podía interpretar su salida.
 
 ## Estado
 Aceptado e implementado. Pilot real corrido con éxito el 2026-07-15 en el workflow n8n `Sprint - Generar Resumen PDF con Extracción Determinística - Google Drive` (id `rqkqaSiaFq0eK7lU`) — PDF generado, subido a Drive con nombre determinístico y fila de la Sheet marcada como procesada, de punta a punta sin intervención manual. Reemplaza como camino recomendado al workflow `Sprint - Generar Resumen PDF - Google Drive` (id `G8Fq2jaofpNAYCM9`, basado en AI Agent, no borrado — ver Consecuencias).
@@ -10,7 +10,7 @@ Aceptado e implementado. Pilot real corrido con éxito el 2026-07-15 en el workf
 
 ## Contexto
 
-`PLAN-N8N-SPRINT-WORKFLOW.md` (Decisión confirmada #2) y su auditoría (`AUDITORIA-PLAN-N8N-SPRINT-WORKFLOW.md`, hallazgo #11) ya habían dejado registrada la alternativa de extracción single-shot como "no descartada", pero el plan optó inicialmente por mantener un AI Agent multi-turno con 3 tools HTTP sobre la API GraphQL de Linear (`buscar_ciclo`, `listar_issues_del_ciclo`, `obtener_historial_issue`), con un Structured Output Parser forzando el JSON final.
+`docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md` (Decisión confirmada #2) y su auditoría (`docs/planning/AUDITORIA-PLAN-N8N-SPRINT-WORKFLOW.md`, hallazgo #11) ya habían dejado registrada la alternativa de extracción single-shot como "no descartada", pero el plan optó inicialmente por mantener un AI Agent multi-turno con 3 tools HTTP sobre la API GraphQL de Linear (`buscar_ciclo`, `listar_issues_del_ciclo`, `obtener_historial_issue`), con un Structured Output Parser forzando el JSON final.
 
 Al construir y probar ese workflow contra ejecuciones reales (`test_workflow`/`get_execution` en n8n), aparecieron dos problemas que la auditoría ya había anticipado como riesgo pero que se confirmaron en la práctica:
 - El Agent podía responder en prosa en vez de invocar la tool de formato de salida cuando Linear no devolvía ningún ciclo/issue coincidente (comportamiento correcto del modelo — se negaba a inventar datos — pero el parser estructurado lo interpretaba como un fallo de parseo y **crasheaba la ejecución completa** en vez de disparar la rama de reintento/notificación ya diseñada).
@@ -88,7 +88,7 @@ Nota el tipo `$cycleId: ID!` (no `String!`): Linear exige `ID` para el filtro `c
 
 ## Notas de seguimiento
 
-- Reconsiderar el `first: 100` sin paginación en `Listar Issues del Ciclo` si el equipo crece más allá de lo que sostiene el cálculo de horas fijo de 3 miembros (ver `Calcular Horas y Corte de Agregados`, misma limitación conocida ya documentada en `PLAN-N8N-SPRINT-WORKFLOW.md`).
+- Reconsiderar el `first: 100` sin paginación en `Listar Issues del Ciclo` si el equipo crece más allá de lo que sostiene el cálculo de horas fijo de 3 miembros (ver `Calcular Horas y Corte de Agregados`, misma limitación conocida ya documentada en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`).
 - Pendiente: decidir si se archiva `G8Fq2jaofpNAYCM9` (siguiendo el mismo criterio ya usado para archivar `PCrWDqiWAwqQkkiy` al renombrar bajo el estándar de n8n de Polaria) ahora que el pilot del workflow determinístico ya corrió con éxito, y actualizar `docs/BUSINESS_FLOWS.md` (Flujo 3) para referenciar un único workflow vigente si se decide archivarlo.
 - ~~Verificar manualmente en n8n, antes de la primera corrida real, que los 6 nodos HTTP Request tengan credencial asignada~~ — hecho (2026-07-14): 3× `Linear Auth`, 3× `PDF Generator API` (header `X-API-Key` contra el mismo valor que `API_KEY` en `.env` del backend — ver ADR-0005), asignadas manualmente por el operador desde la UI de n8n.
 - ~~Correr el primer pilot end-to-end del workflow determinístico~~ — hecho (2026-07-15): ejecución real completa (Linear → extracción → PDF → subida a Drive → fila marcada como procesada), sin intervención manual.

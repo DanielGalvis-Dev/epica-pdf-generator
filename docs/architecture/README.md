@@ -11,7 +11,7 @@ El sistema como caja negra: quién lo usa y con qué servicios externos habla.
 ```mermaid
 flowchart TB
     equipo["Equipo interno de Polaria<br/>(usuario humano, vía navegador)"]
-    n8n["Workflow n8n<br/>(automatización externa, en la nube)<br/>ver PLAN-N8N-SPRINT-WORKFLOW.md"]
+    n8n["Workflow n8n<br/>(automatización externa, en la nube)<br/>ver docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md"]
 
     sistema["Polaria PDF Generator<br/>——————————————<br/>Convierte un Markdown de épica/sprint<br/>en un PDF con diseño oficial:<br/>IA extrae y estructura, el usuario<br/>revisa/edita el JSON, Playwright<br/>renderiza el HTML final a PDF"]
 
@@ -78,7 +78,7 @@ flowchart TB
 | `POST /api/:docType/preview` | HTTP + JSON, `body.datos` o body directo, `body.plantilla` opcional | `text/html` (HTML crudo) | Frontend |
 | `POST /api/:docType/pdf` | HTTP + JSON, mismo body que `/preview` | `application/pdf` (binario) | Frontend y workflow n8n (`docType=sprint`) |
 
-Todas validan `config.schema.safeParse(...)` antes de procesar; el error de validación se devuelve como `{ success:false, code:"VALIDATION_ERROR", message, details: zodError.flatten() }` — la misma forma que consume tanto el frontend como el workflow de n8n (ver `PLAN-N8N-SPRINT-WORKFLOW.md`, paso 8).
+Todas validan `config.schema.safeParse(...)` antes de procesar; el error de validación se devuelve como `{ success:false, code:"VALIDATION_ERROR", message, details: zodError.flatten() }` — la misma forma que consume tanto el frontend como el workflow de n8n (ver `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, paso 8).
 
 ## 3. Patrón document-type (registry)
 
@@ -151,5 +151,5 @@ Agregar un tipo de documento nuevo no toca `document.routes.ts`: se crea `backen
 ## 5. Referencias cruzadas
 
 - Razonamiento detrás de cada decisión marcada arriba: ver `docs/adr/` (`0001` patrón document-type, `0002` stack Handlebars/Playwright/Zod/OpenAI, `0003` browser singleton + cola, `0004` alto de PDF auto-ajustable, `0005` auth por API key).
-- Plan de integración con n8n (actor externo del diagrama de contexto): `PLAN-N8N-SPRINT-WORKFLOW.md` en la raíz del repo.
+- Plan de integración con n8n (actor externo del diagrama de contexto): `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`.
 - Guía de arquitectura para contribuir código nuevo: `CLAUDE.md` en la raíz del repo.

@@ -18,7 +18,7 @@
 
 ## Nota honesta sobre el `1.0.0` actual
 
-La guía interna marca como error común "usar la versión 1.0.0 para el primer commit del proyecto" porque `1.0.0` implica un contrato público estable. Este proyecto ya está en `1.0.0` en `package.json` sin que exista ese contrato formal todavía (no hay consumidores externos aparte del propio frontend, y el endpoint público para n8n está todavía en fase de diseño, ver `PLAN-N8N-SPRINT-WORKFLOW.md`). No se cambia el número como parte de esta documentación — es una decisión del equipo, no algo para resolver unilateralmente acá — pero queda señalado: a partir de que n8n empiece a depender de `/api/sprint/pdf` como contrato real, cualquier cambio que lo rompa debería tratarse como MAJOR en serio, no solo de nombre.
+La guía interna marca como error común "usar la versión 1.0.0 para el primer commit del proyecto" porque `1.0.0` implica un contrato público estable. Este proyecto ya está en `1.0.0` en `package.json` sin que exista ese contrato formal todavía (no hay consumidores externos aparte del propio frontend, y el endpoint público para n8n está todavía en fase de diseño, ver `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`). No se cambia el número como parte de esta documentación — es una decisión del equipo, no algo para resolver unilateralmente acá — pero queda señalado: a partir de que n8n empiece a depender de `/api/sprint/pdf` como contrato real, cualquier cambio que lo rompa debería tratarse como MAJOR en serio, no solo de nombre.
 
 ## Proceso de release (cuando se decida empezar a taggear)
 

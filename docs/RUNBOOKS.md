@@ -1,6 +1,6 @@
 # Runbooks de operación — Polaria PDF Generator
 
-> Estado real del proyecto (2026-07-13): no existe pipeline de CI/CD, no existe entorno de staging ni un deploy productivo definido. El único despliegue documentado hoy es `npm run build && npm start` corriendo en la misma máquina donde se opera (local o un servidor que el equipo levante a mano). Ver `docs/ENVIRONMENTS.md` para el detalle de entornos y `PLAN-N8N-SPRINT-WORKFLOW.md` para el plan de exposición pública (todavía no implementado). Este documento asume ese contexto: no hay Vercel/Railway/Kubernetes de por medio, los pasos son literalmente los comandos que hay que correr en la máquina donde vive el proceso.
+> Estado real del proyecto (2026-07-13): no existe pipeline de CI/CD, no existe entorno de staging ni un deploy productivo definido. El único despliegue documentado hoy es `npm run build && npm start` corriendo en la misma máquina donde se opera (local o un servidor que el equipo levante a mano). Ver `docs/ENVIRONMENTS.md` para el detalle de entornos y `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md` para el plan de exposición pública (todavía no implementado). Este documento asume ese contexto: no hay Vercel/Railway/Kubernetes de por medio, los pasos son literalmente los comandos que hay que correr en la máquina donde vive el proceso.
 
 Variables de entorno referenciadas en los runbooks (`OPENAI_API_KEY`, `PORT`, `API_KEY`): ver `docs/ENV_VARS.md` para el detalle completo de cada una (requerida/opcional, formato, dónde se define).
 
@@ -188,7 +188,7 @@ No subir `RENDER_TIMEOUT_MS` como primera reacción sin antes revisar si el patr
 ## 5. Checklist mínimo antes de exponer el backend públicamente (túnel o deploy para n8n)
 
 **Objetivo**: no exponer una URL pública del backend sin autenticación mínima.
-**Cuándo usarlo**: antes de levantar un túnel (Cloudflare Tunnel, ngrok, etc.) o un deploy real que le dé al backend una URL alcanzable desde internet — el caso concreto hoy es el workflow de n8n en la nube descrito en `PLAN-N8N-SPRINT-WORKFLOW.md`, que necesita llamar a `POST /api/sprint/pdf` desde fuera de la red local.
+**Cuándo usarlo**: antes de levantar un túnel (Cloudflare Tunnel, ngrok, etc.) o un deploy real que le dé al backend una URL alcanzable desde internet — el caso concreto hoy es el workflow de n8n en la nube descrito en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, que necesita llamar a `POST /api/sprint/pdf` desde fuera de la red local.
 
 > **Estado actual: esto todavía NO está implementado como despliegue real.** El middleware de auth (`apiKeyAuth` en `backend/src/api/document.routes.ts`, líneas 55-75) ya existe en el código y es condicional: si `API_KEY` no está definida en `.env`, no valida nada (deja pasar todo, que es el comportamiento actual en local). Este checklist es lo mínimo que hay que hacer **antes** de que ese backend sea alcanzable desde internet — no antes de simplemente correrlo en local.
 
@@ -209,7 +209,7 @@ No subir `RENDER_TIMEOUT_MS` como primera reacción sin antes revisar si el patr
    Resultado esperado: `200` con HTML.
 
 3. **Configurar el mismo valor de `API_KEY` en el consumidor (n8n).**
-   Según `PLAN-N8N-SPRINT-WORKFLOW.md` (Decisión confirmada #1), el nodo HTTP Request de n8n debe enviar el header `X-API-Key` con ese valor en cada request a `POST /api/sprint/pdf`. Guardarlo como credential/variable de entorno en n8n (`PDF_API_KEY`), nunca hardcodeado en el nodo.
+   Según `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md` (Decisión confirmada #1), el nodo HTTP Request de n8n debe enviar el header `X-API-Key` con ese valor en cada request a `POST /api/sprint/pdf`. Guardarlo como credential/variable de entorno en n8n (`PDF_API_KEY`), nunca hardcodeado en el nodo.
 
 4. **No reusar la `API_KEY` de un entorno expuesto en el `.env` local/dev.**
    Si en algún momento existe más de un entorno con `API_KEY` definida, cada uno debe tener su propio valor (mismo principio que separar credenciales entre entornos, ver `docs/ENVIRONMENTS.md`).
@@ -217,7 +217,7 @@ No subir `RENDER_TIMEOUT_MS` como primera reacción sin antes revisar si el patr
 5. **Confirmar que la cola de renders sigue acotada.**
    `MAX_CONCURRENT_RENDERS = 4` (ver runbook 4) sigue aplicando igual para tráfico público que para el frontend local — un endpoint público sin este límite sería trivialmente agotable con requests concurrentes; el límite ya existe en el código, no hay que agregar nada, solo confirmar que no se subió sin criterio antes de exponer.
 
-6. **No exponer sin los pasos 1-3 completos.** Esto es explícito en el propio plan (`PLAN-N8N-SPRINT-WORKFLOW.md`, Contexto y decisiones ya tomadas): *"un endpoint público sin auth, respaldado por solo 4 renders concurrentes, es trivialmente agotable"*.
+6. **No exponer sin los pasos 1-3 completos.** Esto es explícito en el propio plan (`docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, Contexto y decisiones ya tomadas): *"un endpoint público sin auth, respaldado por solo 4 renders concurrentes, es trivialmente agotable"*.
 
 ### Verificación de éxito del checklist completo
 - `API_KEY` definida en el `.env` de la instancia expuesta.
@@ -229,4 +229,4 @@ No subir `RENDER_TIMEOUT_MS` como primera reacción sin antes revisar si el patr
 Si un request público con el header correcto sigue devolviendo `401`: comparar bytes exactos del valor en `.env` del backend contra el valor configurado en n8n (`compararEnTiempoConstante` en `document.routes.ts` línea 46-53 rechaza si difieren en longitud o contenido — un espacio de más o un salto de línea al copiar/pegar es la causa más común).
 
 ### Nota sobre alcance
-Este checklist cubre solo el mínimo de autenticación por API key. La resolución de la URL pública en sí (deploy real vs. túnel tipo Cloudflare Tunnel/ngrok) es un prerrequisito separado, todavía sin resolver — ver `PLAN-N8N-SPRINT-WORKFLOW.md`, sección "Próximos pasos", ítems 1-2, y `docs/ENVIRONMENTS.md` para el estado planeado de ese entorno.
+Este checklist cubre solo el mínimo de autenticación por API key. La resolución de la URL pública en sí (deploy real vs. túnel tipo Cloudflare Tunnel/ngrok) es un prerrequisito separado, todavía sin resolver — ver `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, sección "Próximos pasos", ítems 1-2, y `docs/ENVIRONMENTS.md` para el estado planeado de ese entorno.

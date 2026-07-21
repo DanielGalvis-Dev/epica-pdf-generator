@@ -13,7 +13,7 @@
 Este backend nació para uso local/interno (un usuario abriendo `frontend/index.html` contra
 `localhost:3001`). Recientemente se le agregó un middleware de API key para poder exponerlo
 con una URL pública y que un workflow de n8n lo invoque (ver
-`PLAN-N8N-SPRINT-WORKFLOW.md`). El modelo de seguridad resultante es intencionalmente simple:
+`docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`). El modelo de seguridad resultante es intencionalmente simple:
 **un secreto compartido, sin roles, sin usuarios, sin rate limiting**. Es adecuado para el caso
 de uso actual (equipo pequeño, un solo consumidor automatizado) pero **no es un modelo
 multi-tenant ni de cara a usuarios finales no confiables**. Cualquier plan de exponer este
@@ -63,12 +63,12 @@ Puntos clave, tal como está implementado hoy:
 - **Un solo secreto compartido, no credenciales por consumidor.** No hay forma de distinguir "el
   workflow de n8n" de "cualquier otro caller que conozca la key" — todos comparten el mismo
   valor de `API_KEY`. Si se necesita revocar el acceso de un consumidor específico sin afectar a
-  los demás, este mecanismo no lo permite (ver `PLAN-N8N-SPRINT-WORKFLOW.md`, decisión 1, donde
+  los demás, este mecanismo no lo permite (ver `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, decisión 1, donde
   esto ya se identificó como limitación conocida y aceptada para el pilot).
 
 ### Cuándo se activa en la práctica
 
-Pensado específicamente para el escenario descrito en `PLAN-N8N-SPRINT-WORKFLOW.md`: el backend
+Pensado específicamente para el escenario descrito en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`: el backend
 se expone con una URL pública (deploy real o túnel tipo Cloudflare Tunnel/ngrok) para que un
 workflow de n8n en la nube pueda llamar a `POST /api/sprint/pdf`. En ese escenario, definir
 `API_KEY` en el `.env` de esa instancia es el control mínimo para que la URL pública no quede
@@ -143,7 +143,7 @@ Puntos relevantes de la superficie expuesta:
   generar costo de OpenAI arbitrario simplemente repitiendo requests con archivos `.md`
   pequeños válidos. Este es probablemente el vector de abuso de mayor impacto económico hoy.
 - **Generación de PDF como vector de agotamiento de recursos.** `/api/:docType/pdf` lanza un
-  Chromium headless por request (`pdf.generator.ts`). El `PLAN-N8N-SPRINT-WORKFLOW.md` (sección
+  Chromium headless por request (`pdf.generator.ts`). El `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md` (sección
   de contexto) menciona una cola de máximo 4 renders concurrentes y un timeout duro de 15s
   (`RENDER_TIMEOUT_MS`) como mitigación de recursos a nivel de proceso — pero esto es un límite
   de capacidad interno, no una defensa contra abuso: no impide que un mismo caller sature esa
@@ -191,7 +191,7 @@ Lo que **no** valida (y no está implementado, no es un olvido de documentación
 | Secreto | Dónde vive | Quién lo usa | Rotación |
 |---|---|---|---|
 | `OPENAI_API_KEY` | `backend/.env` (no versionado). Leída en `extractor.service.ts` línea 16 vía `process.env.OPENAI_API_KEY`, pasada al SDK oficial de OpenAI. `server.ts` líneas 9-14 aborta el arranque del proceso (`process.exit(1)`) si falta, con un mensaje explícito en consola — no hay forma de que el servidor corra sin ella. | El proceso backend, para llamar a `openai.beta.chat.completions.parse` en `/api/:docType/extraer`. | **No definida.** No hay política de rotación documentada ni automatizada. Rotar hoy significa: generar una key nueva en OpenAI Platform → reemplazar el valor en `backend/.env` → reiniciar el proceso. Rotar si hay sospecha de exposición (ej. se filtró un commit, un log, o una captura de pantalla). |
-| `API_KEY` | `backend/.env` (no versionado). Leída en `document.routes.ts` línea 62 vía `process.env.API_KEY`, comparada contra el header `X-API-Key` en cada request a `/api/*`. Opcional: si no está definida, `apiKeyAuth` es no-op (ver sección 1). | Cualquier caller externo que necesite pasar `apiKeyAuth` (hoy, el workflow de n8n descrito en `PLAN-N8N-SPRINT-WORKFLOW.md`). | **No definida.** Mismo estado que `OPENAI_API_KEY`: sin política de rotación, sin expiración. Como es un secreto único compartido entre todos los consumidores (ver sección 2), rotarla implica actualizar el `.env` del backend **y** el valor configurado en cada consumidor (ej. la variable `PDF_API_KEY` en n8n) al mismo tiempo, o hay una ventana donde el consumidor legítimo también queda bloqueado. |
+| `API_KEY` | `backend/.env` (no versionado). Leída en `document.routes.ts` línea 62 vía `process.env.API_KEY`, comparada contra el header `X-API-Key` en cada request a `/api/*`. Opcional: si no está definida, `apiKeyAuth` es no-op (ver sección 1). | Cualquier caller externo que necesite pasar `apiKeyAuth` (hoy, el workflow de n8n descrito en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`). | **No definida.** Mismo estado que `OPENAI_API_KEY`: sin política de rotación, sin expiración. Como es un secreto único compartido entre todos los consumidores (ver sección 2), rotarla implica actualizar el `.env` del backend **y** el valor configurado en cada consumidor (ej. la variable `PDF_API_KEY` en n8n) al mismo tiempo, o hay una ventana donde el consumidor legítimo también queda bloqueado. |
 
 Puntos de higiene verificados en este documento:
 
@@ -252,7 +252,7 @@ compartida, etc.):
    valor nuevo para `API_KEY`, reemplazar en `backend/.env` de la instancia afectada, reiniciar
    el proceso (`npm start` / `npm run dev`).
 2. Si se rotó `API_KEY`, actualizar el valor en **todos** los consumidores que la usan (hoy,
-   principalmente la variable `PDF_API_KEY` de n8n en `PLAN-N8N-SPRINT-WORKFLOW.md`) antes o
+   principalmente la variable `PDF_API_KEY` de n8n en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`) antes o
    inmediatamente después, para minimizar la ventana en que el consumidor legítimo también queda
    bloqueado.
 3. Revisar el historial de git con `git log --all -p | grep -E 'API_KEY|OPENAI_API_KEY'` para
@@ -302,6 +302,6 @@ base sería documentar un proceso que el sistema no puede sostener en la prácti
 - Montaje del middleware y validación de upload: `backend/src/server.ts` (líneas 1-46).
 - Manejo de `OPENAI_API_KEY`: `backend/src/core/ai/extractor.service.ts` (líneas 1-19).
 - Contexto de por qué se agregó `API_KEY` y su rol en el workflow de n8n:
-  `PLAN-N8N-SPRINT-WORKFLOW.md` (Decisión confirmada 1, sección "Contexto y decisiones ya
+  `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md` (Decisión confirmada 1, sección "Contexto y decisiones ya
   tomadas", paso 8 y riesgo 3).
 - Convenciones generales del proyecto: `CLAUDE.md` (raíz del repo).

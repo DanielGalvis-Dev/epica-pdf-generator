@@ -34,7 +34,7 @@ El sistema necesita, en un solo flujo: (a) tomar un Markdown escrito por humanos
 
 4. **Zod.**
    - Pros: el schema y el tipo TypeScript son la misma fuente (`z.infer<typeof Schema>`); `openai/helpers/zod` expone `zodResponseFormat(schema, name)`, que fuerza a la respuesta de OpenAI a cumplir el schema exacto sin parseo manual frágil de texto libre; `safeParse()` produce errores estructurados (`.flatten()`) que viajan tal cual en las respuestas `400 VALIDATION_ERROR` de la API, sin transformación adicional.
-   - Contras: acopla el proyecto a un enfoque "schema-first" de TypeScript; portar el contrato a un runtime no-TypeScript (el propio workflow de n8n) exige una transcripción manual del schema — limitación ya documentada explícitamente en `PLAN-N8N-SPRINT-WORKFLOW.md` para el Structured Output Parser del agente.
+   - Contras: acopla el proyecto a un enfoque "schema-first" de TypeScript; portar el contrato a un runtime no-TypeScript (el propio workflow de n8n) exige una transcripción manual del schema — limitación ya documentada explícitamente en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md` para el Structured Output Parser del agente.
 
 **Para la extracción de datos desde Markdown:**
 
@@ -60,7 +60,7 @@ Handlebars (compilación y cacheo de plantillas en memoria) + Playwright/Chromiu
 
 - Chromium headless es la dependencia más pesada del proyecto (binario grande vía `postinstall`, y riesgo de saturar memoria bajo concurrencia si no se controla — ver ADR-0003 para cómo se mitiga).
 - El costo y la disponibilidad del único paso de IA (extracción) quedan atados a un proveedor externo (OpenAI); una caída o cambio de precio de OpenAI afecta directamente ese endpoint sin alternativa interna.
-- Portar el contrato Zod a un consumidor no-TypeScript (el workflow de n8n) exige mantenerlo sincronizado a mano — ya documentado como riesgo concreto en `PLAN-N8N-SPRINT-WORKFLOW.md` ("no hay forma de compartir código entre el Zod de TypeScript y n8n sin agregar una dependencia nueva al backend").
+- Portar el contrato Zod a un consumidor no-TypeScript (el workflow de n8n) exige mantenerlo sincronizado a mano — ya documentado como riesgo concreto en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md` ("no hay forma de compartir código entre el Zod de TypeScript y n8n sin agregar una dependencia nueva al backend").
 
 ## Notas de seguimiento
 

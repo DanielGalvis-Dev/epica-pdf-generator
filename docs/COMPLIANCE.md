@@ -18,7 +18,7 @@
 - [ ] Política de privacidad redactada y accesible — **no existe**, no evaluado si aplica para un sistema interno.
 - [ ] Consentimiento explícito antes de recopilar datos — **no aplica en el sentido de la guía**: los nombres del equipo se extraen de documentos de sprint ya generados internamente (Linear/Markdown), no de un formulario de registro de usuarios.
 - [ ] Proceso documentado para eliminar datos a solicitud — **no existe**, no evaluado si aplica.
-- [x] Datos en tránsito cifrados — depende del deploy: en local (`http://localhost`) no hay TLS; en la URL pública que se defina para n8n (ver `PLAN-N8N-SPRINT-WORKFLOW.md`), debe usarse HTTPS (lo provee típicamente el túnel/proveedor de deploy, no el código de este proyecto).
+- [x] Datos en tránsito cifrados — depende del deploy: en local (`http://localhost`) no hay TLS; en la URL pública que se defina para n8n (ver `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`), debe usarse HTTPS (lo provee típicamente el túnel/proveedor de deploy, no el código de este proyecto).
 - [ ] Datos sensibles en reposo cifrados — **no aplica directamente**: no hay base de datos que persista datos en reposo.
 - [ ] Proceso de notificación de brechas — **no existe**.
 - [ ] Retención mínima necesaria — **no definida** (ver tabla de arriba).

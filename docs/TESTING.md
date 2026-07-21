@@ -25,7 +25,7 @@ curl "http://localhost:3001/api/sprint/sample-preview?plantilla=detail"
 
 **Resultado esperado**: HTML completo (empieza con `<!DOCTYPE html>` o `<html>`), sin errores. Es la verificación más rápida de que una plantilla renderiza — usa `sample-data.ts`, no depende de OpenAI ni de datos del usuario.
 
-Repetir para cada plantilla registrada del tipo de documento (`detail`, `resumen-inicio`, `resumen`, `resumen-v2` para `sprint`; la plantilla `default` para `epica`).
+Repetir para cada plantilla registrada del tipo de documento (`detail`, `resumen-inicio`, `resumen`, `resumen-v2`, `resumen-v3` para `sprint`; `default` y `cierre` para `epica`).
 
 ### 2. `extraer` — con IA (consume tokens reales de OpenAI)
 

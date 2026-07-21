@@ -76,7 +76,7 @@ cd backend
 npm run dev
 ```
 
-Arranca con auto-reload (`ts-node-dev`) en **http://localhost:3001**. En el log vas a ver `Servidor de documentos corriendo en http://localhost:3001` cuando terminó de levantar. Abrí esa URL, elegí el tipo de documento (Épica o Sprint), subí un `.md`, revisá el JSON extraído, ajustá si hace falta y descargá el PDF. Si el documento tiene más de una plantilla (Sprint tiene `detail`, `resumen-inicio`, `resumen` y `resumen-v2`), elegí cuál usar en el selector "Plantilla" antes de generar la vista previa o el PDF. No hay credenciales de prueba: la app corre local y sin sistema de usuarios.
+Arranca con auto-reload (`ts-node-dev`) en **http://localhost:3001**. En el log vas a ver `Servidor de documentos corriendo en http://localhost:3001` cuando terminó de levantar. Abrí esa URL, elegí el tipo de documento (Épica o Sprint), subí un `.md`, revisá el JSON extraído, ajustá si hace falta y descargá el PDF. Si el documento tiene más de una plantilla (Épica tiene `default` y `cierre`; Sprint tiene `detail`, `resumen-inicio`, `resumen`, `resumen-v2` y `resumen-v3`), elegí cuál usar en el selector "Plantilla" antes de generar la vista previa o el PDF. No hay credenciales de prueba: la app corre local y sin sistema de usuarios.
 
 Comandos alternativos:
 
@@ -124,6 +124,7 @@ PDF-GENERATOR/
 - [docs/MIGRATIONS.md](./docs/MIGRATIONS.md) — notas de migración entre versiones mayores (aún no aplica).
 - [docs/UI_COMPONENTS.md](./docs/UI_COMPONENTS.md) — por qué no aplica un catálogo de componentes (Storybook) hoy.
 - [docs/COMPLIANCE.md](./docs/COMPLIANCE.md) — evaluación preliminar de compliance y normativas.
+- [docs/PALETA_COLORES.md](./docs/PALETA_COLORES.md) — paleta de colores de marca (Polaria).
 - [docs/DOCUMENTATION_CHECKLIST.md](./docs/DOCUMENTATION_CHECKLIST.md) — checklist maestra: estado de los 20 puntos del estándar de documentación.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — cómo contribuir código y documentación a este repositorio.
 - [CHANGELOG.md](./CHANGELOG.md) — historial de cambios por versión.

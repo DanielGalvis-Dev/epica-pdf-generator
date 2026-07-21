@@ -8,7 +8,7 @@ import { leerHistorico, registrarSprintCerrado, SprintHistoricoEntry } from "./h
 // negocio de un tipo en particular). Se llama de forma explicita cuando un
 // sprint realmente cierra -- NO se dispara automaticamente al generar un PDF,
 // para que probar/regenerar el PDF final no ensucie el historico por
-// accidente. Ver ANALISIS_INFORME_EJECUTIVO_SPRINT_RESUMEN_V2.md, Fase 3.
+// accidente. Ver docs/planning/ANALISIS_INFORME_EJECUTIVO_SPRINT_RESUMEN_V2.md, Fase 3.
 export const sprintHistoricoRouter = Router();
 
 function getPayload(body: any) {

@@ -38,18 +38,21 @@ Cada entrada indica: definición de negocio en lenguaje simple, cómo se llama e
 
 **Definición de negocio**: la forma visual en la que se presenta un mismo tipo de documento. Un tipo de documento (por ejemplo Sprint) puede tener más de una plantilla porque el mismo contenido extraído se necesita mostrar de formas distintas según el momento del proceso: una lista detallada de issues, o una vista resumida de tarjetas por persona.
 
-**Representación en el sistema**: cada entrada del objeto `templates: Record<string, DocumentTemplate>` de un `DocumentConfig<T>` (`backend/src/documents/types.ts`). Cada `DocumentTemplate` define `path` (el archivo `.html` de Handlebars) y opcionalmente `pdf.width`/`pdf.height` (tamaño de página; el alto es solo una referencia de diseño — `generarPdf()` crece o achica la página según el alto real del contenido, ver `docs/adr/0007-altura-de-pdf-tambien-se-achica-no-solo-crece.md`). Se elige con el parámetro `plantilla` (query en `sample-preview`, body en `preview`/`pdf`); si no se manda o no existe, se usa `config.defaultTemplate`. Épica tiene una sola plantilla (`default`); Sprint (`backend/src/documents/sprint/config.ts`) tiene 4:
+**Representación en el sistema**: cada entrada del objeto `templates: Record<string, DocumentTemplate>` de un `DocumentConfig<T>` (`backend/src/documents/types.ts`). Cada `DocumentTemplate` define `path` (el archivo `.html` de Handlebars) y opcionalmente `pdf.width`/`pdf.height` (tamaño de página; el alto es solo una referencia de diseño — `generarPdf()` crece o achica la página según el alto real del contenido, ver `docs/adr/0007-altura-de-pdf-tambien-se-achica-no-solo-crece.md`). Se elige con el parámetro `plantilla` (query en `sample-preview`, body en `preview`/`pdf`); si no se manda o no existe, se usa `config.defaultTemplate`. Épica tiene 2 (`default` y `cierre`); Sprint (`backend/src/documents/sprint/config.ts`) tiene 5:
 
 | Clave | Archivo | Cuándo se usa | Tamaño de PDF (referencia) |
 |---|---|---|---|
 | `detail` (default de Sprint) | `template-detail.html` | Lista completa de issues por miembro y proyecto, con etiquetas de tipo/prioridad/estado/agregado por issue. | 900×1188px |
 | `resumen-inicio` | `template-resumen-inicio.html` | Tarjetas por miembro al arrancar el sprint — sin comparar planeados vs. agregados porque el sprint todavía no cerró. | 1240×1050px |
 | `resumen` | `template-resumen.html` | Igual que `resumen-inicio`, pero al cierre del sprint, con el donut de planeados vs. agregados. | 1240×1050px |
-| `resumen-v2` | `template-resumen-v2.html` | Resumen de cierre con dos KPIs de cumplimiento separados (issues planeados vs. agregados) más un KPI global de planeación, en vez del riesgo transversal muestra `desviaciones`. | 1240×1050px |
+| `resumen-v2` | `template-resumen-v2.html` | Resumen de cierre con dos KPIs de cumplimiento separados (issues planeados vs. agregados) más un KPI global de planeación, en vez del riesgo transversal muestra `desviaciones` por miembro. | 1240×1050px |
+| `resumen-v3` | `template-resumen-v3.html` | Evolución de `resumen-v2`: semáforo único de salud del sprint, badge de utilización de capacidad por miembro, issues "vencidos" al cierre y tendencia/proyección contra sprints anteriores (lee `backend/data/sprint-historico.json`, ver `docs/planning/ANALISIS_INFORME_EJECUTIVO_SPRINT_RESUMEN_V2.md`). | 1240×1050px |
+
+Épica, análogamente, tiene `default` (resumen de inicio) y `cierre` (mismos datos + cumplimiento por épica, sprints del ciclo, resultado del riesgo transversal — solo se completan si el documento fuente trae resultados reales, no un plan).
 
 **Términos relacionados**: `epica`, `sprint`, `componerDatos`.
 
-**Ejemplo concreto**: en el frontend (`frontend/index.html`), el tab "Sprint" muestra un selector "Plantilla" con las opciones `Detalle`, `Resumen inicio`, `Resumen fin` y `Resumen fin v2`; elegir "Resumen fin v2" manda `body.plantilla = "resumen-v2"` a `POST /api/sprint/pdf`.
+**Ejemplo concreto**: en el frontend (`frontend/index.html`), el tab "Sprint" muestra un selector "Plantilla" con las opciones `Detalle`, `Resumen inicio`, `Resumen fin`, `Resumen fin v2` y `Resumen fin v3`; elegir "Resumen fin v3" manda `body.plantilla = "resumen-v3"` a `POST /api/sprint/pdf`. El tab "Épica" muestra `Inicio` y `Cierre`.
 
 **No confundir con**: **tipo de documento** (`epica`/`sprint`) — el tipo de documento define qué schema y qué prompt de IA se usan (es el mismo para todas sus plantillas); la plantilla solo define cómo se ve el resultado ya extraído.
 

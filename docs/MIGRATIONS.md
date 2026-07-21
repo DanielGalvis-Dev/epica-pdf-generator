@@ -28,4 +28,4 @@ La próxima vez que ocurra un cambio de los que `docs/VERSIONING.md` clasifica c
 
 ## Caso más probable de MAJOR a futuro
 
-El caso con más probabilidad real de ocurrir, dado el estado del proyecto: una vez que el workflow de n8n (`PLAN-N8N-SPRINT-WORKFLOW.md`) dependa en producción de `POST /api/sprint/pdf`, cualquier cambio incompatible en `SprintSchema` o en el formato de respuesta de ese endpoint pasa a tener un consumidor externo real que migrar — a partir de ese momento, este documento deja de ser teórico.
+El caso con más probabilidad real de ocurrir, dado el estado del proyecto: una vez que el workflow de n8n (`docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`) dependa en producción de `POST /api/sprint/pdf`, cualquier cambio incompatible en `SprintSchema` o en el formato de respuesta de ese endpoint pasa a tener un consumidor externo real que migrar — a partir de ese momento, este documento deja de ser teórico.

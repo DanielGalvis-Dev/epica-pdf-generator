@@ -56,7 +56,7 @@ Recibe los datos ya validados por `SprintSchema` y calcula, sin que la plantilla
 
 ### 3.5 Render: `backend/src/core/generators/pdf.generator.ts`
 
-- `resolveTemplate(config, templateKey)` (líneas 9-18): si `templateKey` existe en `config.templates`, la usa; si no, cae a `config.defaultTemplate`. Para `sprint`, `config.templates` tiene 4 claves: `detail` (900×1188px, default), `resumen-inicio` (1240×1050px), `resumen` (1240×1050px) y `resumen-v2` (1240×1050px).
+- `resolveTemplate(config, templateKey)` (líneas 9-18): si `templateKey` existe en `config.templates`, la usa; si no, cae a `config.defaultTemplate`. Para `sprint`, `config.templates` tiene 5 claves: `detail` (900×1188px, default), `resumen-inicio` (1240×1050px), `resumen` (1240×1050px), `resumen-v2` (1240×1050px) y `resumen-v3` (1240×1050px).
 - `generarHtml` compila el `.html` de la plantilla resuelta con Handlebars y lo cachea en memoria por path resuelto (`templateCache`, línea 7) — el archivo se lee de disco y se compila una sola vez por proceso.
 - `generarPdf` (líneas 164-222):
   1. Toma un slot de un semáforo hecho a mano (`acquireSlot`/`releaseSlot`, líneas 96-128) que limita a `MAX_CONCURRENT_RENDERS = 4` renders simultáneos, para no saturar memoria/CPU si varios requests piden PDF a la vez.

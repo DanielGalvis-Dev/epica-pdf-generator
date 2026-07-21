@@ -1,20 +1,20 @@
 # ADR-0005: Autenticación por API key propia (header `X-API-Key`) para la exposición pública del backend, en vez de auth a nivel de túnel/infraestructura
 
 ## Fecha
-2026-07-13 (implementado en el árbol de trabajo actual: `apiKeyAuth` en `backend/src/api/document.routes.ts`, aplicado en `backend/src/server.ts` vía `app.use("/api", apiKeyAuth)` — verificado con `git diff HEAD`). Decisión confirmada previamente en `PLAN-N8N-SPRINT-WORKFLOW.md`, sección "Decisiones confirmadas (Fase 0)", punto 1.
+2026-07-13 (implementado en el árbol de trabajo actual: `apiKeyAuth` en `backend/src/api/document.routes.ts`, aplicado en `backend/src/server.ts` vía `app.use("/api", apiKeyAuth)` — verificado con `git diff HEAD`). Decisión confirmada previamente en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, sección "Decisiones confirmadas (Fase 0)", punto 1.
 
 ## Estado
 Aceptado
 
 ## Contexto
 
-Hasta ahora el backend corre únicamente en `localhost:3001`, consumido por el frontend estático servido por el mismo proceso Express — sin necesidad de autenticación, porque no hay superficie de ataque más allá de la propia máquina del usuario. El plan de integrar un workflow de n8n que corre en la nube (`PLAN-N8N-SPRINT-WORKFLOW.md`) y que necesita llamar a `POST /api/sprint/pdf` obliga a exponer el backend con una URL pública (deploy real, o un túnel tipo Cloudflare Tunnel/ngrok mientras se prueba).
+Hasta ahora el backend corre únicamente en `localhost:3001`, consumido por el frontend estático servido por el mismo proceso Express — sin necesidad de autenticación, porque no hay superficie de ataque más allá de la propia máquina del usuario. El plan de integrar un workflow de n8n que corre en la nube (`docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`) y que necesita llamar a `POST /api/sprint/pdf` obliga a exponer el backend con una URL pública (deploy real, o un túnel tipo Cloudflare Tunnel/ngrok mientras se prueba).
 
-Un backend público sin ninguna autenticación, respaldado además por una cola de solo `MAX_CONCURRENT_RENDERS = 4` renders concurrentes (ver ADR-0003), es trivialmente agotable por cualquiera que descubra la URL — ya sea por accidente o intencionalmente. `PLAN-N8N-SPRINT-WORKFLOW.md` lo señala explícitamente como riesgo #3 y como bloqueante real antes de construir el workflow.
+Un backend público sin ninguna autenticación, respaldado además por una cola de solo `MAX_CONCURRENT_RENDERS = 4` renders concurrentes (ver ADR-0003), es trivialmente agotable por cualquiera que descubra la URL — ya sea por accidente o intencionalmente. `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md` lo señala explícitamente como riesgo #3 y como bloqueante real antes de construir el workflow.
 
 ## Opciones consideradas
 
-*(tal como quedaron documentadas en `PLAN-N8N-SPRINT-WORKFLOW.md`, "Decisiones confirmadas (Fase 0)", punto 1 — traducidas aquí a formato ADR)*
+*(tal como quedaron documentadas en `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, "Decisiones confirmadas (Fase 0)", punto 1 — traducidas aquí a formato ADR)*
 
 1. **Auth a nivel de túnel/infraestructura** (ej. Cloudflare Access, ngrok con auth token propio del túnel).
    - Pros: no requiere tocar código del backend; delega el control de acceso a una capa ya diseñada específicamente para eso, potencialmente más robusta que una implementación propia.
@@ -45,4 +45,4 @@ Opción 2: API key propia, implementada como middleware condicional (`apiKeyAuth
 
 ## Notas de seguimiento
 
-*(tomadas literalmente de `PLAN-N8N-SPRINT-WORKFLOW.md`, ya que ahí quedaron documentadas como condiciones explícitas de reconsideración)*: reconsiderar esta decisión si el backend termina expuesto por un mecanismo que ya impone su propia capa de autenticación (evitaría duplicar control), o si se necesita revocar/rotar accesos por consumidor individual sin tener que tocar código (hoy una sola API key compartida no distingue quién llama).
+*(tomadas literalmente de `docs/planning/PLAN-N8N-SPRINT-WORKFLOW.md`, ya que ahí quedaron documentadas como condiciones explícitas de reconsideración)*: reconsiderar esta decisión si el backend termina expuesto por un mecanismo que ya impone su propia capa de autenticación (evitaría duplicar control), o si se necesita revocar/rotar accesos por consumidor individual sin tener que tocar código (hoy una sola API key compartida no distingue quién llama).
