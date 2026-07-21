@@ -45,7 +45,7 @@ Cada entrada indica: definición de negocio en lenguaje simple, cómo se llama e
 | `detail` (default de Sprint) | `template-detail.html` | Lista completa de issues por miembro y proyecto, con etiquetas de tipo/prioridad/estado/agregado por issue. | 900×1188px |
 | `resumen-inicio` | `template-resumen-inicio.html` | Tarjetas por miembro al arrancar el sprint — sin comparar planeados vs. agregados porque el sprint todavía no cerró. | 1240×1050px |
 | `resumen` | `template-resumen.html` | Igual que `resumen-inicio`, pero al cierre del sprint, con el donut de planeados vs. agregados. | 1240×1050px |
-| `resumen-v2` | `template-resumen-v2.html` | Resumen de cierre con dos KPIs de cumplimiento separados (issues planeados vs. agregados) más un KPI global de planeación, en vez del riesgo transversal muestra `desviaciones` por miembro. | 1240×1050px |
+| `resumen-v2` | `template-resumen-v2.html` | Versión simplificada de `resumen` para el cierre: header con solo 2 KPIs (issues planeados vs. agregados, % completado), sin horas por miembro ni `desviaciones`. En el box de riesgo, además del riesgo transversal previsto, muestra `riesgoTransversalResultado` si viene informado. | 1240×1050px |
 | `resumen-v3` | `template-resumen-v3.html` | Evolución de `resumen-v2`: semáforo único de salud del sprint, badge de utilización de capacidad por miembro, issues "vencidos" al cierre y tendencia/proyección contra sprints anteriores (lee `backend/data/sprint-historico.json`, ver `docs/planning/ANALISIS_INFORME_EJECUTIVO_SPRINT_RESUMEN_V2.md`). | 1240×1050px |
 
 Épica, análogamente, tiene `default` (resumen de inicio) y `cierre` (mismos datos + cumplimiento por épica, sprints del ciclo, resultado del riesgo transversal — solo se completan si el documento fuente trae resultados reales, no un plan).
@@ -126,7 +126,7 @@ Cada entrada indica: definición de negocio en lenguaje simple, cómo se llama e
 
 **Representación en el sistema**: dos campos a nivel de documento en `SprintSchema` — `porcentajeCompletado: z.number().min(0).max(100)` y `estadoSprint: z.enum(["CUMPLIDO", "NO CUMPLIDO"])`. El prompt de IA (`SPRINT_SYSTEM_PROMPT`) instruye calcular `porcentajeCompletado` como el % de issues con `status: "Done"` sobre el total, y `estadoSprint` como `CUMPLIDO` si ese porcentaje es 90 o más, `NO CUMPLIDO` si es menor — pero ambos quedan editables a mano en el JSON antes de generar el PDF. La misma regla de "90% o más" (función `resolverEstadoSprint`) se reutiliza en `componerDatosSprint` para calcular, de forma independiente, el estado de los dos KPIs de `template-resumen-v2.html` (uno para issues planeados, otro para agregados) — esos son campos calculados (`planEstadoSprint`, `agregadoEstadoSprint`), no el mismo campo que `estadoSprint` del documento.
 
-**Estados posibles**: `CUMPLIDO` / `NO CUMPLIDO` (documento completo); los KPIs calculados de `resumen-v2` usan el mismo par de estados por separado para "planeados" y "agregados", más un tercer indicador `ÓPTIMO`/`ACEPTABLE`/`DESVIADO` (KPI "global", con bandas distintas: 95-105% óptimo, 85-95%/105-115% aceptable, el resto desviado) que mide sobre-cumplimiento o sub-cumplimiento de lo planeado.
+**Estados posibles**: `CUMPLIDO` / `NO CUMPLIDO` (documento completo); los KPIs calculados de `resumen-v2` usan el mismo par de estados por separado para "planeados" y "agregados" (nada más — no muestra el KPI global). `resumen-v3` va más allá: agrega un tercer indicador `ÓPTIMO`/`ACEPTABLE`/`DESVIADO` (KPI "global", con bandas distintas: 95-105% óptimo, 85-95%/105-115% aceptable, el resto desviado) que mide sobre-cumplimiento o sub-cumplimiento de lo planeado, y unifica los 4 KPIs bajo ese mismo vocabulario de 3 estados.
 
 **Términos relacionados**: `agregado`, `desviaciones`.
 
@@ -154,23 +154,35 @@ Cada entrada indica: definición de negocio en lenguaje simple, cómo se llama e
 
 ### `riesgoTransversal`
 
-**Definición de negocio**: el riesgo principal que afecta a todo el período a la vez (no a una épica o proyecto puntual), junto con cómo se está mitigando. Por ejemplo, correr una migración de datos en paralelo con desarrollo nuevo sin ambiente de pruebas dedicado.
+**Definición de negocio**: el riesgo principal que afecta a todo el período a la vez (no a una épica o proyecto puntual), junto con cómo se está mitigando. En Épica es un riesgo abierto, inferido del conjunto de épicas. En Sprint está acotado a un único tema fijo: que aparezcan incidencias no planeadas que consuman las horas reservadas para el segmento "Incidencias" del bloque `horas`, restando tiempo a lo planeado en Proyectos.
 
-**Representación en el sistema**: objeto `{ texto, mitigacion }` presente en `EpicaSchema` y en `SprintSchema` (`texto` 180-230 caracteres, `mitigacion` 100-140 caracteres, según el prompt de IA). En Sprint, `template-detail.html` no lo usa; en las plantillas de resumen (`resumen`, `resumen-inicio`) sí aparece, pero en `template-resumen-v2.html` **se reemplaza por `desviaciones`**.
+**Representación en el sistema**: objeto `{ texto, mitigacion }` presente en `EpicaSchema` y en `SprintSchema` (`texto` 180-230 caracteres, `mitigacion` 100-140 caracteres, según el prompt de IA). En Sprint, `template-detail.html` no lo usa; sí aparece en todas las plantillas de resumen (`resumen`, `resumen-inicio`, `resumen-v2`, `resumen-v3`).
 
-**Términos relacionados**: `equipo`, `desviaciones`.
+**Términos relacionados**: `equipo`, `desviaciones`, `riesgoTransversalResultado`.
 
-**Ejemplo concreto**: en el sprint de ejemplo, `riesgoTransversal.texto` señala que "la migración de datos y los nuevos módulos web corren en paralelo sin ambiente de pruebas dedicado", con mitigación "validar cada entrega con datos reales antes de cerrarla y monitorear de cerca los primeros días".
+**Ejemplo concreto**: en el sprint de ejemplo (un cierre, `tiempoVerbal: "Pasado"`), `riesgoTransversal.texto` señala que "el riesgo de este sprint era que aparecieran incidencias no planeadas que consumieran las horas reservadas para eso, dejando menos tiempo del previsto para avanzar en los proyectos de cada persona", con mitigación "ese tiempo para incidencias ya estaba reservado de antemano como colchón, justo para poder absorber ese riesgo sin afectar lo planeado en Proyectos" — en un `resumen-inicio` (`tiempoVerbal: "Futuro"`) el mismo campo se redactaría en presente/subjuntivo ("el riesgo es que aparezcan...").
 
-**No confundir con**: `desviaciones` — `riesgoTransversal` habla de un riesgo **a futuro** (algo que todavía puede salir mal); `desviaciones` habla **en pasado**, de qué tan bien se cumplió lo planeado una vez que el sprint ya cerró.
+**No confundir con**: `riesgoTransversalResultado` — `riesgoTransversal` habla de un riesgo **a futuro** (algo que todavía puede pasar, se muestra en `resumen-inicio`); `riesgoTransversalResultado` habla **en pasado**, de si ese riesgo se materializó o no una vez que el sprint/período ya cerró.
+
+### `riesgoTransversalResultado`
+
+**Definición de negocio**: al cierre de un sprint o período de épicas, si el riesgo transversal previsto al inicio se materializó o no, y qué pasó en la práctica. En Sprint, concretamente: si entraron incidencias que consumieron el colchón de horas reservado (y si eso afectó o no el cierre planeado), o si no entraron y el sprint pudo avanzar según lo planeado o incluso sumar issues agregados porque hubo margen de sobra.
+
+**Representación en el sistema**: campo opcional `riesgoTransversalResultado: z.string()` a nivel de documento, presente en `EpicaSchema` (máx. 260 caracteres) y en `SprintSchema` (máx. 260 caracteres). Solo se completa cuando el documento fuente describe resultados reales (no un plan) — igual criterio que `cumplimiento` (Épica) y `desviaciones` (Sprint). En Épica lo muestra `template-cierre.html`; en Sprint, `template-resumen-v2.html` (bajo el texto de `riesgoTransversal`, con un divisor y label "RESULTADO"). El contenido difiere entre los dos: en Épica es puramente cualitativo, sin cifras (mismo criterio que `cumplimiento`, que tampoco calcula un % — ver `EPICA_SYSTEM_PROMPT`); en Sprint, `SPRINT_SYSTEM_PROMPT` exige cifras concretas basadas en los issues reales del documento (cuántos planeados se completaron sobre el total, cuántos agregados entraron y cuántos de esos se completaron) en vez de una descripción vaga tipo "hubo margen".
+
+**Términos relacionados**: `riesgoTransversal`, `desviaciones`.
+
+**Ejemplo concreto**: en el sprint de ejemplo, `riesgoTransversalResultado` dice "no entraron incidencias que consumieran el colchón reservado. El equipo completó 16 de los 17 issues planeados y, gracias al avance más rápido de lo esperado, sumó 4 issues agregados, de los cuales completó 3" — las cifras (16/17, 4, 3) coinciden con los KPIs de header `planPorcentajeCompletado` (94%) y `agregadoPorcentajeCompletado` (75%) del mismo documento.
+
+**No confundir con**: `desviaciones` — `riesgoTransversalResultado` es un único resultado a nivel de documento sobre el riesgo de horas/incidencias; `desviaciones` es, por cada miembro, la desviación de alcance de sus propios issues (planeados vs. completados).
 
 ### `desviaciones`
 
 **Definición de negocio**: la explicación honesta, al cierre de un sprint, de si se cumplió lo planeado o no y por qué — cuánto del alcance original quedó sin cerrar, y por qué se agregó trabajo que no estaba previsto. No mide si el equipo trabajó lo suficiente, mide qué tan bien se ajustó lo hecho a lo planeado.
 
-**Representación en el sistema**: objeto `{ logrado, motivo }`, exclusivo de `SprintSchema` (no existe en Épica): `logrado` (180-230 caracteres) responde directamente "¿se logró lo planificado?"; `motivo` (100-140 caracteres) explica por qué se agregaron issues no planeados o por qué quedaron issues planeados sin completar. Reemplaza a `riesgoTransversal` específicamente en `template-resumen-v2.html`, porque en un sprint ya cerrado el riesgo a futuro no aplica — lo relevante es explicar la desviación de alcance ya ocurrida.
+**Representación en el sistema**: objeto `{ logrado, motivo }`, exclusivo de `SprintSchema` (no existe en Épica): `logrado` (180-230 caracteres) responde directamente "¿se logró lo planificado?"; `motivo` (100-140 caracteres) explica por qué se agregaron issues no planeados o por qué quedaron issues planeados sin completar. El schema lo extrae siempre por miembro, pero solo `template-resumen-v3.html` lo renderiza hoy (`resumen-v2` muestra en su lugar el resultado del riesgo transversal a nivel de documento, no por miembro — ver `riesgoTransversalResultado`).
 
-**Términos relacionados**: `riesgoTransversal`, `agregado`, `estadoSprint`/`porcentajeCompletado`.
+**Términos relacionados**: `riesgoTransversal`, `riesgoTransversalResultado`, `agregado`, `estadoSprint`/`porcentajeCompletado`.
 
 **Ejemplo concreto**: en el sprint de ejemplo, `desviaciones.logrado` dice que "el plan inicial se cumplió parcialmente: algunos issues planeados quedaron abiertos por mayor complejidad de la esperada, mientras el equipo sumó trabajo no previsto que surgió durante la semana", y `desviaciones.motivo` explica que "los issues agregados respondieron a incidencias y pedidos que aparecieron en curso; los planeados sin cerrar pasan al siguiente sprint".
 

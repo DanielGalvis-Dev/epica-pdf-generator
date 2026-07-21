@@ -26,16 +26,6 @@
         --amber-bg: #fdf3da;
         --amber-border: #f3e3b3;
         --amber-text: #7a5c12;
-        /* Estado KPI (Planeados / Agregados): valores de referencia para el
-           backend (KPI_ESTADO_CFG) — el HTML consume los hex vía
-           {{planEstadoBg}}/{{planEstadoColor}} y sus equivalentes de
-           "agregados", nunca estas variables directamente. */
-        --state-cumplido-bg: #d7f6f0;
-        --state-cumplido-text: #0f766e;
-        --state-progreso-bg: #fdf3da;
-        --state-progreso-text: #7a5c12;
-        --state-riesgo-bg: #fbe2e1;
-        --state-riesgo-text: #b3261e;
       }
       * {
         box-sizing: border-box;
@@ -68,7 +58,6 @@
         padding: 22px 28px;
         display: flex;
         flex-direction: column;
-        gap: 18px;
         color: #fff;
       }
       .header-top {
@@ -86,10 +75,9 @@
         margin-bottom: 6px;
       }
       .header-left .title {
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 700;
         letter-spacing: -0.01em;
-        white-space: nowrap;
       }
       .header-left .title .accent {
         color: var(--teal);
@@ -98,16 +86,14 @@
       .header-kpis {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        padding-top: 16px;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        gap: 24px;
+        padding-left: 28px;
+        border-left: 1px solid rgba(255, 255, 255, 0.14);
       }
       .kpi-block {
         display: flex;
-        flex: 1;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
         gap: 6px;
       }
       .kpi-label {
@@ -171,24 +157,6 @@
         color: #aab4cc;
         letter-spacing: 0.04em;
         margin-bottom: 6px;
-      }
-      .legend {
-        display: flex;
-        gap: 14px;
-        justify-content: flex-end;
-        font-size: 11px;
-        color: #cfd5e6;
-      }
-      .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-      .legend-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        display: inline-block;
       }
 
       .cards-grid {
@@ -388,7 +356,7 @@
         border-radius: 16px;
         padding: 20px 22px;
         display: grid;
-        grid-template-columns: 1.3fr 1fr;
+        grid-template-columns: 1fr 1fr 1.3fr;
         gap: 0;
       }
 
@@ -400,6 +368,11 @@
       }
 
       .footer-col-horas {
+        padding: 0 18px;
+        border-left: 1px solid var(--card-border);
+      }
+
+      .footer-col-riesgo {
         padding-left: 18px;
         border-left: 1px solid var(--card-border);
       }
@@ -537,16 +510,16 @@
         margin: 10px 0;
       }
 
-      .mitigation-label {
+      .resultado-label {
         font-size: 9px;
         font-weight: 700;
-        color: var(--amber-text);
+        color: #0f766e;
         margin-bottom: 3px;
       }
 
-      .mitigation-text {
+      .resultado-text {
         font-size: 10.5px;
-        color: #5c4a14;
+        color: #134e4a;
         line-height: 1.5;
       }
     </style>
@@ -560,6 +533,32 @@
             <div class="title">SPRINT <span class="accent">{{sprintName}}</span></div>
           </div>
 
+          <div class="header-kpis">
+            <div class="kpi-block">
+              <div class="kpi-label">Planeados · % completado</div>
+              <div class="kpi-value-row">
+                <span class="kpi-value">{{planPorcentajeCompletado}}%</span>
+                <span
+                  class="kpi-badge"
+                  style="background:{{planEstadoBg}}; color:{{planEstadoColor}}"
+                  >{{planEstadoSprint}}</span
+                >
+              </div>
+            </div>
+            <div class="kpi-divider"></div>
+            <div class="kpi-block">
+              <div class="kpi-label">Agregados · % completado</div>
+              <div class="kpi-value-row">
+                <span class="kpi-value">{{agregadoPorcentajeCompletado}}%</span>
+                <span
+                  class="kpi-badge"
+                  style="background:{{agregadoEstadoBg}}; color:{{agregadoEstadoColor}}"
+                  >{{agregadoEstadoSprint}}</span
+                >
+              </div>
+            </div>
+          </div>
+
           <div class="header-right">
             <div class="date-badge">
               {{dateStart}}
@@ -569,58 +568,6 @@
               SEMANA {{weekNumber}} · {{teamSize}} MIEMBROS
             </div>
           </div>
-        </div>
-
-        <div class="header-kpis">
-          <div class="kpi-block">
-            <div class="kpi-label">Planeados · % completado</div>
-            <div class="kpi-value-row">
-              <span class="kpi-value">{{planPorcentajeCompletado}}%</span>
-              <span
-                class="kpi-badge"
-                style="background:{{planEstadoBg}}; color:{{planEstadoColor}}"
-                >{{planEstadoSprint}}</span
-              >
-            </div>
-          </div>
-          <div class="kpi-divider"></div>
-          <div class="kpi-block">
-            <div class="kpi-label">Agregados · % completado</div>
-            <div class="kpi-value-row">
-              <span class="kpi-value">{{agregadoPorcentajeCompletado}}%</span>
-              <span
-                class="kpi-badge"
-                style="background:{{agregadoEstadoBg}}; color:{{agregadoEstadoColor}}"
-                >{{agregadoEstadoSprint}}</span
-              >
-            </div>
-          </div>
-          <div class="kpi-divider"></div>
-          <div class="kpi-block">
-            <div class="kpi-label">Global · % vs. planeado</div>
-            <div class="kpi-value-row">
-              <span class="kpi-value">{{globalPorcentaje}}%</span>
-              <span
-                class="kpi-badge"
-                style="background:{{globalEstadoBg}}; color:{{globalEstadoColor}}"
-                >{{globalEstadoSprint}}</span
-              >
-            </div>
-          </div>
-          {{#if horas.kpiDisponible}}
-          <div class="kpi-divider"></div>
-          <div class="kpi-block">
-            <div class="kpi-label">Horas · % vs. planeado</div>
-            <div class="kpi-value-row">
-              <span class="kpi-value">{{horas.porcentaje}}%</span>
-              <span
-                class="kpi-badge"
-                style="background:{{horas.estadoBg}}; color:{{horas.estadoColor}}"
-                >{{horas.estadoSprint}}</span
-              >
-            </div>
-          </div>
-          {{/if}}
         </div>
       </div>
 
@@ -683,7 +630,7 @@
 
             <div class="stats-divider"></div>
 
-            <div class="stats-title">Resultado</div>
+            <div class="stats-title">Por estado</div>
             <div class="stats-subtitle">Distribución por estado</div>
             <div class="estado-row">
               <div class="donut donut-sm" style="background:{{this.estadoGradient}}">
@@ -701,56 +648,6 @@
                 {{/each}}
               </div>
             </div>
-          </div>
-
-          {{#if this.horas}}
-          <div class="stats-box">
-            <div class="hours-header">
-              <div class="footer-box-label" style="margin-bottom: 0">
-                CUÁNTO · TIEMPO DEDICADO
-              </div>
-              {{#if this.horas.planeadasDisponibles}}
-              <span class="hours-badge">PLAN → REAL</span>
-              {{else}}
-              <span class="hours-badge">REAL</span>
-              {{/if}}
-            </div>
-            <div class="hours-sub">{{this.horas.total}}h totales</div>
-            <div class="bar-track">
-              {{#each this.horas.segmentos}}
-              <div
-                class="bar-seg"
-                style="width:{{this.pct}}%; background:{{this.color}}"
-              >
-                {{#if this.mostrarPct}}{{this.pct}}%{{/if}}
-              </div>
-              {{/each}}
-            </div>
-            <div class="hours-legend">
-              {{#each this.horas.segmentos}}
-              <div class="hours-legend-row">
-                <span class="name">
-                  <span
-                    class="hours-legend-dot"
-                    style="background:{{this.color}}"
-                  ></span
-                  >{{this.nombre}}
-                </span>
-                <span class="val">{{#if this.tienePlaneadas}}{{this.horasPlaneadas}}h → {{this.horas}}h{{else}}{{this.pct}}% · {{this.horas}}h{{/if}}</span>
-              </div>
-              {{/each}}
-            </div>
-          </div>
-          {{/if}}
-
-          <div class="transversal-box">
-            <div class="transversal-label">
-              <i class="ti ti-clipboard-check"></i>DESVIACIONES DE ALCANCE
-            </div>
-            <div class="transversal-text">{{this.desviaciones.logrado}}</div>
-            <div class="transversal-divider"></div>
-            <div class="mitigation-label">MOTIVO</div>
-            <div class="mitigation-text">{{this.desviaciones.motivo}}</div>
           </div>
         </div>
         {{/each}}
@@ -795,13 +692,9 @@
             <div class="footer-box-label" style="margin-bottom: 0">
               CUÁNTO · TIEMPO DEL EQUIPO
             </div>
-            {{#if horas.planeadasDisponibles}}
-            <span class="hours-badge">PLAN → REAL</span>
-            {{else}}
-            <span class="hours-badge">REAL</span>
-            {{/if}}
+            <span class="hours-badge">APROXIMADO</span>
           </div>
-          <div class="hours-sub">{{horas.total}}h totales</div>
+          <div class="hours-sub">Por semana · de {{horas.total}}h totales</div>
           <div class="bar-track">
             {{#each horas.segmentos}}
             <div
@@ -822,12 +715,25 @@
                 ></span
                 >{{this.nombre}}
               </span>
-              <span class="val">{{#if this.tienePlaneadas}}{{this.horasPlaneadas}}h → {{this.horas}}h{{else}}{{this.pct}}% · {{this.horas}}h{{/if}}</span>
+              <span class="val">{{this.pct}}% · {{this.horas}}h</span>
             </div>
             {{/each}}
           </div>
         </div>
 
+        <div class="footer-col footer-col-riesgo">
+          <div class="transversal-box">
+            <div class="transversal-label">
+              <i class="ti ti-alert-triangle"></i>RIESGO TRANSVERSAL
+            </div>
+            <div class="transversal-text">{{riesgoTransversal.texto}}</div>
+            {{#if riesgoTransversalResultado}}
+            <div class="transversal-divider"></div>
+            <div class="resultado-label">RESULTADO</div>
+            <div class="resultado-text">{{riesgoTransversalResultado}}</div>
+            {{/if}}
+          </div>
+        </div>
       </div>
     </div>
   </body>

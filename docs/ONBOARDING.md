@@ -51,7 +51,7 @@ Recibe los datos ya validados por `SprintSchema` y calcula, sin que la plantilla
 
 - Por issue: colores/íconos de tipo, prioridad y estado (`TYPE_CFG`, `PRI_CFG`, `STA_CFG`) y la etiqueta "Planeado"/"Agregado" (`AGREGADO_TAG_CFG`, según el booleano `agregado` del issue).
 - Por miembro: `totalIssues`, `planeados`/`agregados`, `estadoConteos` (mapeo de los 5 estados del schema a las 9 categorías estilo Linear del donut "Por estado"), los `conic-gradient` ya armados (`planGradient`, `estadoGradient`), y la paleta de color vía `asignarPaleta(indice)` (de `constants.ts`).
-- A nivel de documento: `horas` (total y `pct`/`color` de cada segmento, calculado sobre `datosExtraidos.horas.segmentos` que sí viaja en el JSON — a diferencia de `epica`, ver sección 4), los KPIs `planKpi`/`agregadoKpi`/`globalKpi` que usa `template-resumen-v2.html`, y `typeLegend`.
+- A nivel de documento: `horas` (total y `pct`/`color` de cada segmento, calculado sobre `datosExtraidos.horas.segmentos` que sí viaja en el JSON — a diferencia de `epica`, ver sección 4), los KPIs `planKpi`/`agregadoKpi` (usados por `template-resumen-v2.html`) y `globalKpi` (usado solo por `template-resumen-v3.html`), y `typeLegend`.
 - Devuelve un objeto plano que las plantillas Handlebars consumen directo con `{{campo}}` — nunca hacen cálculos ellas mismas (regla explícita, ver sección 4).
 
 ### 3.5 Render: `backend/src/core/generators/pdf.generator.ts`
@@ -94,9 +94,9 @@ En `backend/src/core/generators/pdf.generator.ts`, el `context.close()` vive en 
 
 Cada tipo de documento es un módulo autocontenido en `backend/src/documents/<tipo>/` con 3-4 archivos: `config.ts` (schema Zod + `systemPrompt` + `componerDatos()` + `templates` + `defaultTemplate`), `sample-data.ts` (datos de ejemplo para `/sample-preview`) y uno o más `template*.html` (Handlebars, CSS inline, sin helpers custom). Las 4 rutas de `document.routes.ts` son genéricas y no requieren cambios para un tipo nuevo — solo hay que registrar el `config` + `sample-data` en `backend/src/documents/registry.ts` (agregar la entrada a `documentRegistry` y `documentSamples`, como se ve en las líneas 7-19 de ese archivo) y, si el documento debe aparecer en la UI, agregar su entrada al objeto `DOCUMENTS` en `frontend/index.html` (línea 185 en adelante). Las plantillas Handlebars nunca calculan nada (ni colores, ni porcentajes, ni formateo) — todo eso vive en `componerDatos()`, la plantilla solo interpola `{{campo}}`.
 
-Para agregar una plantilla nueva a un tipo **existente** (por ejemplo, otra variante de `sprint`): crear el `.html`, agregarlo a `templates` en el `config.ts` de ese tipo (ver `sprintConfig.templates` en `sprint/config.ts`, líneas 371-388, que ya registra 4 claves: `detail`, `resumen-inicio`, `resumen`, `resumen-v2`) y sumar la entrada correspondiente al array `templates` de ese documento en `DOCUMENTS` en `frontend/index.html` (líneas 209-214) para que aparezca como tab de plantilla en la UI.
+Para agregar una plantilla nueva a un tipo **existente** (por ejemplo, otra variante de `sprint`): crear el `.html`, agregarlo a `templates` en el `config.ts` de ese tipo (ver `sprintConfig.templates` en `sprint/config.ts`, que registra 5 claves: `detail`, `resumen-inicio`, `resumen`, `resumen-v2`, `resumen-v3`) y sumar la entrada correspondiente al array `templates` de ese documento en `DOCUMENTS` en `frontend/index.html` para que aparezca como tab de plantilla en la UI.
 
-Nota de estado real del código a la fecha de este documento: `CLAUDE.md` describe 3 plantillas de `sprint` (`detail`, `resumen-inicio`, `resumen`), pero el código ya tiene una cuarta, `resumen-v2` (`backend/src/documents/sprint/template-resumen-v2.html`, registrada en `sprint/config.ts`), que reemplaza el bloque `riesgoTransversal` por uno nuevo `desviaciones` (`{logrado, motivo}`, ver `SprintSchema` en `sprint/config.ts` líneas 65-68) para sprints ya cerrados. Es un ejemplo real de que la documentación puede quedar un paso atrás del código: ante cualquier duda, el schema/config en el código manda.
+Nota sobre docs vs. código: `SprintSchema` extrae siempre el campo `desviaciones` (`{logrado, motivo}` por miembro) y `riesgoTransversalResultado` (opcional, a nivel de documento) pero hoy solo `template-resumen-v3.html` renderiza `desviaciones`, mientras que `template-resumen-v2.html` renderiza `riesgoTransversalResultado` (no `desviaciones`) — cada plantilla usa un subconjunto distinto de lo que el schema extrae. Ante cualquier duda sobre qué campo usa qué plantilla, el `.html` y `componerDatosSprint()` mandan, no la descripción en prosa de este documento ni de `CLAUDE.md`.
 
 ### 4.3 Por qué `HORAS_FIJAS` es fijo y no se extrae del markdown (para `epica`)
 
@@ -137,6 +137,6 @@ Por qué esta tarea es un buen primer ticket:
 - `backend/src/core/generators/pdf.generator.ts`
 - `backend/src/constants.ts`
 - `frontend/index.html` (líneas 180-280, objeto `DOCUMENTS` y selector de plantillas)
-- `backend/src/documents/sprint/template-resumen-v2.html` (solo grep puntual sobre `desviaciones`/`riesgoTransversal`, para confirmar la plantilla 4ta no documentada en `CLAUDE.md`)
+- `backend/src/documents/sprint/template-resumen-v2.html` (solo grep puntual sobre `riesgoTransversal`/`riesgoTransversalResultado`)
 
 No inspeccionados (fuera del alcance de este recorrido): `epica/template.html`, `sprint/template-detail.html` en detalle línea por línea, `sprint/template-resumen.html`, `sprint/template-resumen-inicio.html`, `sample-data.ts` de ambos tipos, ni el resto de `frontend/index.html` (líneas 1-179 y 280-564). `docs/architecture/`, `docs/adr/` y `docs/runbooks/` existen como carpetas en el repo pero estaban vacías al momento de escribir este documento.

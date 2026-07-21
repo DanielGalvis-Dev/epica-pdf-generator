@@ -131,8 +131,8 @@ Las 4 rutas de `document.routes.ts` empiezan siempre igual: `const config = getD
 
 | `docType` | Templates registradas | `defaultTemplate` | Notas |
 |---|---|---|---|
-| `epica` | `default` (`1240×1050px`, tamaño por defecto) | `default` | Resumen ejecutivo mensual; `horas` sale siempre de `HORAS_FIJAS` en `constants.ts`, no del JSON. |
-| `sprint` | `detail` (`900×1188px`), `resumen-inicio` (`1240×1050px`), `resumen` (`1240×1050px`), `resumen-v2` (`1240×1050px`) | `detail` | Único documento con más de una plantilla; `horas.segmentos` sí es editable por request. |
+| `epica` | `default` (`1240×1050px`, tamaño por defecto), `cierre` (`1240×1050px`) | `default` | Resumen ejecutivo mensual; `horas` sale siempre de `HORAS_FIJAS` en `constants.ts`, no del JSON. |
+| `sprint` | `detail` (`900×1188px`), `resumen-inicio` (`1240×1050px`), `resumen` (`1240×1050px`), `resumen-v2` (`1240×1050px`), `resumen-v3` (`1240×1050px`) | `detail` | El documento con más plantillas; `horas.segmentos` sí es editable por request. |
 
 ### Extensibilidad (por qué existe el patrón)
 

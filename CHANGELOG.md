@@ -4,7 +4,25 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) | Versionad
 
 ## [Unreleased]
 
-Sin cambios registrados todavía sobre la versión `1.0.0` (`backend/package.json`). Cualquier cambio de comportamiento visible para el usuario o para quien consuma la API debe agregarse acá en el mismo PR que lo origina.
+Cambios acumulados sobre la versión `1.0.0` (`backend/package.json`), todavía sin taggear un release. Cualquier cambio de comportamiento visible para el usuario o para quien consuma la API debe agregarse acá en el mismo PR que lo origina.
+
+### Added
+
+- **Épica — plantilla `cierre`**: nueva plantilla para el resumen de fin de ciclo (`?plantilla=cierre`), con tres campos opcionales nuevos en el schema — `epicas[].cumplimiento`, `epicas[].sprints[]` y `riesgoTransversalResultado` — que solo se completan cuando el documento fuente describe resultados reales (no un plan). La plantilla `default` no los muestra aunque vengan informados.
+- **Sprint — plantillas de resumen**: además de `detail`, se agregaron `resumen-inicio` (arranque del sprint), `resumen` y `resumen-v2` (cierre) y `resumen-v3` (cierre con semáforo único de salud del sprint, badge de utilización de capacidad por miembro, issues "vencidos" y tendencia/proyección contra sprints anteriores). Todas seleccionables desde el tab "Plantilla" de la UI.
+- **Sprint — `riesgoTransversalResultado`**: campo opcional nuevo en la API (máx. 260 caracteres) que narra al cierre si el riesgo de incidencias se materializó, con cifras reales de issues planeados/agregados completados. Lo muestra la plantilla `resumen-v2`.
+- **Sprint — histórico de sprints**: nuevos endpoints `POST /api/sprint/historico` (registra un sprint cerrado) y `GET /api/sprint/historico` (lista), que alimentan la tendencia/proyección de `resumen-v3`. Se persiste en un archivo local no versionado (`backend/data/sprint-historico.json`); no se dispara automáticamente al generar un PDF.
+- **Autenticación opcional por API key**: si se define `API_KEY` en el entorno, toda request a `/api/*` debe incluir el header `X-API-Key` o recibe `401 UNAUTHORIZED`. Si no se define, el comportamiento es el mismo que antes (uso local sin auth).
+
+### Changed
+
+- **Alto del PDF auto-ajustable**: el alto de página ahora se ajusta al contenido real en ambos sentidos (crece si el contenido no entra y se achica si sobra), en vez de tratar el alto de la plantilla como un mínimo fijo. El ancho sigue siendo fijo por plantilla.
+- **Sprint — redacción del resumen de cierre en pasado**: todo el texto narrativo de un resumen fin (incluido el riesgo transversal) se redacta en pasado, gobernado por el `tiempoVerbal` del documento fuente. El riesgo transversal de sprint quedó acotado a un único tema (incidencias que consumen las horas reservadas como colchón) en vez de un riesgo genérico inferido del documento.
+
+### Fixed
+
+- **Épica — encabezado**: el `periodo` garantiza siempre un año de 4 dígitos aunque la IA lo omita, y `fechaFin` se recalcula a partir de la duración real del ciclo en vez de confiar en la aritmética de fechas de la IA.
+- Se ajustó el timeout de extracción con OpenAI para sprints grandes.
 
 ## [1.0.0] — 2026-06-26
 

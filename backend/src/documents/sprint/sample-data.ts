@@ -266,8 +266,10 @@ export const sprintSampleData: SprintData = {
   },
   riesgoTransversal: {
     texto:
-      "La migracion de datos y los nuevos modulos web corren en paralelo sin ambiente de pruebas dedicado, lo que puede generar errores que solo se detecten en produccion.",
+      "El riesgo de este sprint era que aparecieran incidencias no planeadas que consumieran las horas reservadas para eso, dejando menos tiempo del previsto para avanzar en los proyectos de cada persona.",
     mitigacion:
-      "Validar cada entrega con datos reales antes de cerrarla y monitorear de cerca los primeros dias.",
+      "Ese tiempo para incidencias ya estaba reservado de antemano como colchon, justo para poder absorber ese riesgo sin afectar lo planeado en Proyectos.",
   },
+  riesgoTransversalResultado:
+    "No entraron incidencias que consumieran el colchon reservado. El equipo completo 16 de los 17 issues planeados y, gracias al avance mas rapido de lo esperado, sumo 4 issues agregados, de los cuales completo 3.",
 };

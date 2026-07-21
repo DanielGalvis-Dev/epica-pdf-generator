@@ -51,8 +51,8 @@ Los 4 endpoints son genéricos: `:docType` es una clave del registro `documentRe
 
 | `docType` | Documento | Plantillas (`plantilla`) |
 |---|---|---|
-| `epica` | Resumen ejecutivo mensual de épicas | `default` (única, y es la default) |
-| `sprint` | Resumen de sprint por miembro → proyecto → issue | `detail` (default), `resumen-inicio`, `resumen`, `resumen-v2` |
+| `epica` | Resumen ejecutivo mensual de épicas | `default` (default), `cierre` |
+| `sprint` | Resumen de sprint por miembro → proyecto → issue | `detail` (default), `resumen-inicio`, `resumen`, `resumen-v2`, `resumen-v3` |
 
 Si `:docType` no está registrado, **los 4 endpoints** responden igual:
 
@@ -229,8 +229,8 @@ Contenido de ejemplo de `sprint-1-junio-julio-2026.md` (fragmento real del domin
       "como": "NestJS, Supabase, n8n, Next.js, Linear"
     },
     "riesgoTransversal": {
-      "texto": "La migracion de datos y los nuevos modulos web corren en paralelo sin ambiente de pruebas dedicado, lo que puede generar errores que solo se detecten en produccion.",
-      "mitigacion": "Validar cada entrega con datos reales antes de cerrarla y monitorear de cerca los primeros dias."
+      "texto": "El riesgo de este sprint era que aparecieran incidencias no planeadas que consumieran las horas reservadas para eso, dejando menos tiempo del previsto para avanzar en los proyectos de cada persona.",
+      "mitigacion": "Ese tiempo para incidencias ya estaba reservado de antemano como colchon, justo para poder absorber ese riesgo sin afectar lo planeado en Proyectos."
     }
   },
   "uso": {
@@ -493,9 +493,10 @@ Content-Type: application/json
       "como": "NestJS, Supabase, n8n, Next.js, Linear"
     },
     "riesgoTransversal": {
-      "texto": "La migracion de datos y los nuevos modulos web corren en paralelo sin ambiente de pruebas dedicado, lo que puede generar errores que solo se detecten en produccion.",
-      "mitigacion": "Validar cada entrega con datos reales antes de cerrarla y monitorear de cerca los primeros dias."
-    }
+      "texto": "El riesgo de este sprint era que aparecieran incidencias no planeadas que consumieran las horas reservadas para eso, dejando menos tiempo del previsto para avanzar en los proyectos de cada persona.",
+      "mitigacion": "Ese tiempo para incidencias ya estaba reservado de antemano como colchon, justo para poder absorber ese riesgo sin afectar lo planeado en Proyectos."
+    },
+    "riesgoTransversalResultado": "No entraron incidencias que consumieran el colchon reservado. El equipo completo 16 de los 17 issues planeados y, gracias al avance mas rapido de lo esperado, sumo 4 issues agregados, de los cuales completo 3."
   }
 }
 ```
@@ -615,7 +616,7 @@ El ejemplo completo de request/response para `epica` está en la sección 3 (`/p
 | `horas.segmentos` | array de objeto | Sí | mínimo 1 elemento |
 | `horas.segmentos[].nombre` | string | Sí | — |
 | `horas.segmentos[].horas` | number | Sí | ≥ 0 (horas reales del segmento) |
-| `horas.segmentos[].horasPlaneadas` | number | No | ≥ 0; opcional, por segmento. Horas que se habían planeado para ese segmento; lo rellena la integración (n8n desde el Sheet), la IA nunca lo completa. Reuniones (3.5h/persona) e incidencias (3h/persona) son fijas; Proyectos es el resto de la capacidad. Habilita el comparativo "planeadas → reales" en `resumen-v2` |
+| `horas.segmentos[].horasPlaneadas` | number | No | ≥ 0; opcional, por segmento. Horas que se habían planeado para ese segmento; lo rellena la integración (n8n desde el Sheet), la IA nunca lo completa. Reuniones (3.5h/persona) e incidencias (3h/persona) son fijas; Proyectos es el resto de la capacidad. Habilita el comparativo "planeadas → reales" en `resumen-v3` |
 | `members` | array de objeto | Sí | mínimo 1 elemento |
 | `members[].name` | string | Sí | — |
 | `members[].initials` | string | Sí | — |
@@ -632,8 +633,11 @@ El ejemplo completo de request/response para `epica` está en la sección 3 (`/p
 | `...issues[].status` | enum | Sí | `"Todo"` \| `"In Progress"` \| `"In Review"` \| `"Done"` \| `"Cancelled"` |
 | `...issues[].agregado` | boolean | Sí | `true` si el issue se sumó durante el sprint (no estaba planeado) |
 | `equipo.quien` / `.cuando` / `.donde` / `.como` | string | Sí | máx. 150 caracteres cada uno |
-| `riesgoTransversal.texto` | string | Sí | máx. 320 caracteres |
+| `riesgoTransversal.texto` | string | Sí | máx. 320 caracteres. El riesgo transversal de `sprint` es siempre el mismo tema: que aparezcan incidencias no planeadas que consuman las horas reservadas para el segmento "Incidencias" de `horas` |
 | `riesgoTransversal.mitigacion` | string | Sí | máx. 200 caracteres |
+| `riesgoTransversalResultado` | string | No | máx. 260 caracteres. Solo aplica al flujo de **cierre**: si el riesgo de incidencias se materializó o no, cuántos de los issues planeados se completaron y, si hubo issues agregados, cuántos de esos se completaron — con cifras concretas derivadas de los issues del documento, no una descripción vaga. A diferencia del campo homónimo de `epica` (puramente cualitativo, sin cifras — ver `EPICA_SYSTEM_PROMPT`), en `sprint` sí debe incluir números reales |
+
+Nota sobre `resumen-v2`: es una versión simplificada de `resumen` pensada para el cierre — su header solo muestra 2 KPIs (`planPorcentajeCompletado`/`agregadoPorcentajeCompletado`, ya calculados por `componerDatosSprint()`), sin el box de horas por miembro ni las desviaciones de alcance que sí tiene `resumen-v3`. En el footer, en vez de mostrar solo el riesgo prospectivo, agrega (si viene informado) `riesgoTransversalResultado` bajo un divisor con label "RESULTADO". `SPRINT_SYSTEM_PROMPT` solo completa `riesgoTransversalResultado` cuando el documento describe resultados reales (no un plan) — igual criterio que `members[].desviaciones`.
 
 El ejemplo completo de request/response para `sprint` está en las secciones 2 (`/extraer`) y 4 (`/pdf`) arriba.
 
