@@ -377,7 +377,7 @@ Reglas:
 - Usa initials de 2 a 3 letras en mayusculas.
 - Ademas, devuelve un bloque "equipo" con: quien (quien ejecuta el sprint, menciona solo a los miembros con trabajo asignado, 60-90 caracteres), cuando (ventana de tiempo del sprint, 30-50 caracteres), donde (entornos y canales donde corre el trabajo, 50-80 caracteres) y como (stack tecnico usado, 40-70 caracteres).
 - Y un bloque "riesgoTransversal" con: texto (el riesgo transversal de un sprint es siempre el mismo tipo: que aparezcan incidencias no planeadas durante el sprint que consuman las horas reservadas para el segmento "Incidencias" del bloque horas, afectando el avance de los issues planeados de Proyectos. Redactalo en lenguaje simple, sin jerga tecnica y sin citar cifras exactas, 180-230 caracteres) y mitigacion (explica que esas horas de Incidencias ya estan reservadas de antemano como colchon, precisamente para poder absorber ese riesgo sin afectar lo planeado, 100-140 caracteres).
-- "riesgoTransversalResultado" (opcional, string en lenguaje simple, sin jerga tecnica): inclúyelo SIEMPRE que "tiempoVerbal" sea "Pasado" -- no lo omitas en ese caso, incluso si el resultado es que no paso nada distinto a lo planeado (eso tambien es un resultado valido para narrar). Solo omite este campo por completo si "tiempoVerbal" es "Futuro" (un plan sin resultados reales todavia). Cuando "tiempoVerbal" sea "Pasado", basate en los issues reales que ya extrajiste (conteo de agregado=true/false y status=Done de TODOS los members juntos) para narrar, con cifras concretas, que paso -- no uses frases vagas tipo "hubo margen" o "se avanzo bien" sin numeros detras. Cubre: (1) si entraron incidencias que consumieron el colchon de horas reservado, o si no entro ninguna; (2) cuantos de los issues planeados se completaron sobre el total planeado (se honesto si quedo algo planeado sin completar, no lo ocultes ni redondees a "todo"); (3) si se agregaron issues no planeados, cuantos en total y cuantos de esos se llegaron a completar. No inventes cifras que no se desprendan de los issues del documento. Ejemplo de tono (con cifras de ejemplo, usa las reales del documento): "No entraron incidencias que consumieran el colchon reservado. El equipo completo 16 de los 17 issues planeados y, gracias al avance mas rapido de lo esperado, sumo 4 issues agregados, de los cuales completo 3." Entre 180 y 250 caracteres, contando espacios.
+- "riesgoTransversalResultado" (opcional, string en lenguaje simple, sin jerga tecnica): inclúyelo SIEMPRE que "tiempoVerbal" sea "Pasado" -- no lo omitas en ese caso. Solo omite este campo por completo si "tiempoVerbal" es "Futuro" (un plan sin resultados reales todavia). Cuando "tiempoVerbal" sea "Pasado", escribe UNA sola frase que diga si entraron incidencias no planeadas que consumieran el colchon de horas reservado para el segmento "Incidencias", o si no entro ninguna -- basate en las horas reales de Incidencias vs. lo reservado si el documento lo menciona, o en el criterio general si no lo menciona. NO incluyas cifras de issues planeados/agregados/completados en este campo: esos numeros se calculan aparte en codigo a partir de los issues que ya extrajiste, y se agregan automaticamente despues de tu frase -- si intentas contarlos tu mismo es facil que te equivoques. Ejemplos: "No entraron incidencias que consumieran el colchon reservado." o "Entraron incidencias que consumieron parte del colchon reservado, aunque no afectaron el avance de los issues planeados." Entre 40 y 120 caracteres, contando espacios.
 - Si el documento no menciona explicitamente el bloque de equipo (quien/cuando/donde/como), infierelo a partir del conjunto de members y projects de la forma mas razonable y concreta posible, respetando los mismos rangos de caracteres.
 - "porcentajeCompletado": numero entero de 0 a 100, el porcentaje de issues con status Done sobre el total de issues del sprint.
 - "estadoSprint": resultado del sprint segun porcentajeCompletado. Solo dos valores posibles: CUMPLIDO si es 90 o mas, NO CUMPLIDO si es menor a 90.
@@ -495,6 +495,26 @@ export function componerDatosSprint(datosExtraidos: SprintData) {
     planeadosTotal > 0 ? Math.round((totalDone / planeadosTotal) * 100) : 0;
   const globalKpi = resolverEstadoGlobal(globalPorcentaje);
 
+  // Cifras del cierre para riesgoTransversalResultado: se calculan aqui, nunca se
+  // confian al conteo del LLM (vino "20 de los 20" cuando en realidad eran 15
+  // planeados -- el LLM solo redacta la parte cualitativa sobre el colchon de
+  // incidencias, ver SPRINT_SYSTEM_PROMPT).
+  const planeadosCompletados = todosLosIssues.filter(
+    (issue) => !issue.agregado && issue.status === "Done",
+  ).length;
+  const agregadosTotalCount = todosLosIssues.length - planeadosTotal;
+  const agregadosCompletados = todosLosIssues.filter(
+    (issue) => issue.agregado && issue.status === "Done",
+  ).length;
+  const resumenNumericoCierre = `El equipo completó ${planeadosCompletados} de los ${planeadosTotal} issue${planeadosTotal === 1 ? "" : "s"} planeado${planeadosTotal === 1 ? "" : "s"}${
+    agregadosTotalCount > 0
+      ? ` y sumó ${agregadosTotalCount} issue${agregadosTotalCount === 1 ? "" : "s"} agregado${agregadosTotalCount === 1 ? "" : "s"}, de los cuales completó ${agregadosCompletados}`
+      : ""
+  }.`;
+  const riesgoTransversalResultado = datosExtraidos.riesgoTransversalResultado
+    ? `${datosExtraidos.riesgoTransversalResultado} ${resumenNumericoCierre}`
+    : datosExtraidos.riesgoTransversalResultado;
+
   // Semaforos unificados (ÓPTIMO/ACEPTABLE/DESVIADO) de Planeados/Agregados y
   // salud general del sprint -- exclusivos de template-resumen-v3 (ver
   // resolverEstadoCompletado). El resto de campos de arriba (planEstadoSprint,
@@ -569,6 +589,7 @@ export function componerDatosSprint(datosExtraidos: SprintData) {
 
   return {
     ...datosExtraidos,
+    riesgoTransversalResultado,
     horas,
     teamSize: String(members.length),
     members,
